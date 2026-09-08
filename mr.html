@@ -111,6 +111,16 @@
     <div id="stress"></div>
   </section>
 
+  <section class="section" id="perf-section" style="display:none">
+    <h2>Performance (XIRR)</h2>
+    <div id="performance"></div>
+  </section>
+
+  <section class="section" id="behave-section" style="display:none">
+    <h2>Behavioral ledger</h2>
+    <div id="behavior"></div>
+  </section>
+
   <section class="section" id="disc-section">
     <h2>Investment discipline</h2>
     <div id="discipline"></div>
@@ -252,6 +262,51 @@ function renderGoals(){
   document.getElementById("goals").innerHTML = `<div class="note">${g.note || "Goal funding requires a dated required-corpus baseline per sleeve (retirement, son's education, home loan)."}</div>`;
 }
 
+function renderPerformance(){
+  const p = STATE.d.performance;
+  const el = document.getElementById("perf-section");
+  if (!p || p.status !== "ready") {
+    if (p && p.status === "needs-cas"){
+      el.style.display = "";
+      document.getElementById("performance").innerHTML = `<div class="note">${p.note || "Performance data pending."}</div>`;
+    }
+    return;
+  }
+  el.style.display = "";
+  const eq = p.equity_xirr_pct;
+  const mf = p.mf_xirr_pct;
+  const cards = [
+    {t:"Equity XIRR", big: eq!==null ? `<span class="${cls(eq)}">${eq.toFixed(2)}%</span>` : "n/a", sub:"money-weighted, incl. current value"},
+    {t:"MF XIRR", big: mf!==null ? `<span class="${cls(mf)}">${mf.toFixed(2)}%</span>` : "n/a", sub:"money-weighted, incl. current value"},
+    {t:"Blended XIRR", big: (eq!==null&&mf!==null) ? `<span class="${cls((eq+mf)/2)}">${((eq+mf)/2).toFixed(2)}%</span>` : "n/a", sub:"simple average of sleeves"},
+  ];
+  const notes = (p.notes||[]).map(n=>`<div class="note" style="margin-top:.3rem">${n}</div>`).join("");
+  document.getElementById("performance").innerHTML =
+    `<div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">` +
+    cards.map(c=>`<div class="card"><h3>${c.t}</h3><div class="big">${c.big}</div><div class="sub">${c.sub}</div></div>`).join("") +
+    `</div>${notes}`;
+}
+
+function renderBehavior(){
+  const p = STATE.d.performance;
+  const el = document.getElementById("behave-section");
+  if (!p || p.status !== "ready" || !p.behavior) return;
+  el.style.display = "";
+  const b = p.behavior;
+  const rows = [
+    {t:"Avg holding period (current)", v: b.avg_holding_years!==null? b.avg_holding_years+" years":"n/a"},
+    {t:"Held symbols with any sell history", v: b.held_with_sell_history},
+    {t:"Sells within 90 days of first buy", v: b.sells_within_90d_of_first_buy, warn: b.sells_within_90d_of_first_buy>0},
+    {t:"Gross bought since 2020", v: fmtINR(b.gross_bought)},
+    {t:"Gross sold since 2020", v: fmtINR(b.gross_sold)},
+  ];
+  document.getElementById("behavior").innerHTML =
+    `<table><tr><th>Metric</th><th>Value</th></tr>` +
+    rows.map(r=>`<tr><td>${r.t}</td><td>${r.warn?`<span class="chip warn">${r.v}</span>`:r.v}</td></tr>`).join("") +
+    `</table>` +
+    `<p style="font-size:.8rem;color:var(--muted);margin-top:.4rem">Ledger: tradebook CSV from Zerodha Console (2020-07-30 to now). Sells within 90 days of first buy is a churn diagnostic, not a violation.</p>`;
+}
+
 function renderDataQuality(){
   const dq = STATE.d.data_quality || {};
   const map = {xirr:"XIRR vs simple return", behavior_ledger:"Behavioral ledger (holding period, round trips)", benchmark_relative:"Benchmark-relative / matched-flow XIRR"};
@@ -274,6 +329,8 @@ function renderAll(){
   renderContrib();
   renderConcentration();
   renderStress();
+  renderPerformance();
+  renderBehavior();
   renderDiscipline();
   renderGoals();
   renderDataQuality();

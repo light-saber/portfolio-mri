@@ -257,6 +257,133 @@ def build_discipline(policy, equity, mf):
     }
 
 
+def build_performance(equity, mf, as_of):
+    """XIRR + behavioral metrics from the tradebook CSVs (downloaded from Console)."""
+    import csv as _csv
+    from datetime import date as _date
+
+    eq_csv = PORTFOLIO_DIR / "tradebook_eq_full.csv"
+    mf_csv = PORTFOLIO_DIR / "tradebook_mf_full.csv"
+    if not (eq_csv.exists() and mf_csv.exists()):
+        return {
+            "status": "needs-cas",
+            "note": "Download tradebook CSVs from Console into ~/.hermes/data/portfolio/ (tradebook_eq_full.csv, tradebook_mf_full.csv), then rerun.",
+        }
+
+    today = _date.fromisoformat(as_of[:10])
+
+    def xirr(flows, guess=0.05):
+        flows = [(_date.fromisoformat(d), a) for d, a in flows if abs(a) > 1e-9]
+        if not flows:
+            return None
+        flows.sort()
+        start = flows[0][0]
+        days = [(d - start).days for d, _ in flows]
+        amts = [a for _, a in flows]
+        scale = max(abs(a) for a in amts) or 1.0
+        amts = [a / scale for a in amts]
+
+        def npv(r):
+            return sum(a / (1 + r) ** (dy / 365.0) for dy, a in zip(days, amts))
+
+        def dnpv(r):
+            return sum(-dy / 365.0 * a / (1 + r) ** (dy / 365.0 + 1) for dy, a in zip(days, amts))
+
+        best = None
+        for g in [0.02, 0.05, 0.10, 0.15, 0.25, 0.35]:
+            r = g
+            for _ in range(200):
+                f, df = npv(r), dnpv(r)
+                if abs(df) < 1e-12:
+                    break
+                nr = r - f / df
+                if abs(nr - r) < 1e-12:
+                    r = nr
+                    break
+                if nr < -0.999 or nr > 10:
+                    break
+                r = nr
+            if -0.90 < r < 2.5 and best is None:
+                best = r
+        return best
+
+    def load(path):
+        with open(path) as f:
+            return list(_csv.DictReader(f))
+
+    eq_trades = load(eq_csv)
+    mf_trades = load(mf_csv)
+
+    SYM_OVERRIDES = {"MTARTECH": "MTARTECH-BE", "TMPV": "TMCV"}
+    held = {e["symbol"] for e in equity}
+
+    def norm_sym(s):
+        s = SYM_OVERRIDES.get(s, s)
+        return s if s in held else s
+
+    # Equity flows: all realized + terminal value of holdings that have buy history
+    realized = []
+    for t in eq_trades:
+        price, qty = float(t["price"]), float(t["quantity"])
+        amt = (-qty * price) if t["trade_type"].lower() == "buy" else (qty * price)
+        realized.append((t["trade_date"], amt))
+
+    buys = {}
+    for t in eq_trades:
+        if t["trade_type"].lower() == "buy":
+            s = norm_sym(t["symbol"])
+            buys.setdefault(s, []).append(_date.fromisoformat(t["trade_date"]))
+
+    held_mv = {e["symbol"]: float(e.get("market_value", 0)) for e in equity}
+    no_ledger = [s for s in held if s not in buys]
+    terminal = [
+        (today.isoformat(), mv) for s, mv in held_mv.items() if s in buys
+    ]
+    eq_xirr = xirr(realized + terminal)
+
+    # MF flows: realized + terminal value of all current funds
+    mf_realized = []
+    for t in mf_trades:
+        price, qty = float(t["price"]), float(t["quantity"])
+        amt = (-qty * price) if t["trade_type"].lower() == "buy" else (qty * price)
+        mf_realized.append((t["trade_date"], amt))
+    mf_mv = sum(float(m.get("market_value", 0)) for m in mf)
+    mf_xirr = xirr(mf_realized + [(today.isoformat(), mf_mv)])
+
+    # Behavioral
+    ages = [((today - min(v)).days) / 365.0 for v in buys.values() if v]
+    sells = {}
+    for t in eq_trades:
+        if t["trade_type"].lower() == "sell":
+            s = norm_sym(t["symbol"])
+            sells.setdefault(s, []).append(_date.fromisoformat(t["trade_date"]))
+    quick_sells = 0
+    for s, sd in sells.items():
+        if s in buys and buys[s]:
+            if (min(sd) - min(buys[s])).days <= 90:
+                quick_sells += 1
+    round_trips = sum(1 for s, sd in sells.items() if s in held and sd)
+
+    gross_buy = sum(-a for _, a in realized if a < 0)
+    gross_sell = sum(a for _, a in realized if a > 0)
+
+    return {
+        "status": "ready",
+        "equity_xirr_pct": round(eq_xirr * 100, 2) if eq_xirr else None,
+        "mf_xirr_pct": round(mf_xirr * 100, 2) if mf_xirr else None,
+        "behavior": {
+            "avg_holding_years": round(sum(ages) / len(ages), 2) if ages else None,
+            "held_with_sell_history": round_trips,
+            "sells_within_90d_of_first_buy": quick_sells,
+            "gross_bought": round(gross_buy, 0),
+            "gross_sold": round(gross_sell, 0),
+        },
+        "notes": [
+            "SGBJUN31I (INR 3.85L) excluded from XIRR: its buys predate the 2020-2026 tradebook window.",
+        ] + ([f"No equity trade rows for: {', '.join(no_ledger)}"] if no_ledger else []),
+    }
+
+
 def main():
     equity = load_equity()
     mf = load_mf()
@@ -269,12 +396,14 @@ def main():
     as_of = as_of_raw or datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=5, minutes=30))).isoformat()
 
     summary = build_summary(equity, mf, as_of)
+    performance = build_performance(equity, mf, as_of)
 
     policy = None
     if POLICY_PATH.exists():
         policy = json.loads(POLICY_PATH.read_text())
     discipline = build_discipline(policy, equity, mf)
 
+    perf_ready = performance.get("status") == "ready"
     data = {
         "meta": {
             "title": "Portfolio MRI",
@@ -283,12 +412,13 @@ def main():
             "version": "v1",
         },
         "summary": summary,
+        "performance": performance,
         "discipline": discipline,
         "goals": {"status": "needs-baseline",
                   "note": "Goal funding needs a dated required-corpus baseline per sleeve (retirement, son's education, home loan). Add to policy.json."},
         "data_quality": {
-            "xirr": "needs-cas",
-            "behavior_ledger": "needs-trade-history",
+            "xirr": "ready" if perf_ready else "needs-cas",
+            "behavior_ledger": "ready" if perf_ready else "needs-trade-history",
             "benchmark_relative": "needs-trade-dates",
         },
     }
