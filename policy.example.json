@@ -1,0 +1,27 @@
+{
+  "_comment": "Discipline policy template. Copy to policy.json next to gen_mri_data.py. score_rate is the trailing-12-month compliance ratio as 0-10 (compliant observations / eligible observations). Leave components out or null until you can actually measure them; missing policy shows needs-policy, never a fabricated grade.",
+  "contributions": {
+    "schedule": "monthly SIP, 1st of month",
+    "planned_amount_inr": 0,
+    "grace_days": 7,
+    "min_ratio_of_planned": 0.95,
+    "score_rate": null
+  },
+  "holding": {
+    "min_horizon_months": null,
+    "exit_rule": "documented thesis/goal/risk exit",
+    "score_rate": null
+  },
+  "rebalancing": {
+    "review_cadence": "quarterly",
+    "review_due_day": 7,
+    "max_sleeve_drift_pp": 5,
+    "score_rate": null
+  },
+  "risk": {
+    "issuer_limit_pct": null,
+    "sector_limit_pct": null,
+    "liquidity_reserve_inr": 0,
+    "score_rate": null
+  }
+}

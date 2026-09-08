@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Portfolio MRI</title>
+<style>
+  :root{
+    --accent:#0f766e; --accent-soft:#ccfbf1; --ink:#0b1320;
+    --paper:#fafaf7; --muted:#5b6472; --line:#e3e6ea;
+    --good:#15803d; --good-soft:#dcfce7; --bad:#b91c1c; --bad-soft:#fee2e2;
+    --warn:#b45309; --warn-soft:#fef3c7; --pending:#64748b; --pending-soft:#e2e8f0;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --accent:#2dd4bf; --accent-soft:#134e4a; --ink:#e6edf3;
+      --paper:#0b1320; --muted:#9aa5b1; --line:#2a3644;
+      --good:#4ade80; --good-soft:#064e3b; --bad:#f87171; --bad-soft:#450a0a;
+      --warn:#fbbf24; --warn-soft:#451a03; --pending:#94a3b8; --pending-soft:#1e293b;
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--paper); color:var(--ink); line-height:1.5;
+  }
+  a{color:var(--accent);text-decoration:none}
+  .sitenav{max-width:960px;margin:0 auto;padding:.9rem 1.25rem 0;font-size:.8rem;
+    color:var(--muted);display:flex;gap:.5rem;align-items:center}
+  .sitenav a{color:var(--muted)}
+  .sitenav a[aria-current="page"]{color:var(--accent);font-weight:600}
+  .sitenav a:hover{color:var(--accent)}
+  main{max-width:960px;margin:0 auto;padding:1.5rem 1.25rem 4rem}
+  header.hero{margin-bottom:1.5rem}
+  h1{font-size:1.8rem;line-height:1.2;letter-spacing:-0.02em}
+  .tagline{font-size:1rem;color:var(--accent);margin-top:.3rem}
+  .meta{color:var(--muted);font-size:.8rem;margin-top:.4rem}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem;margin-bottom:1.5rem}
+  .card{background:var(--accent-soft);border-radius:10px;padding:.9rem 1rem}
+  .card h3{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.3rem}
+  .card .big{font-size:1.5rem;font-weight:700;color:var(--ink)}
+  .card .sub{font-size:.8rem;color:var(--muted)}
+  .pos{color:var(--good)} .neg{color:var(--bad)}
+  .section{margin-bottom:1.75rem}
+  h2{font-size:1.1rem;border-bottom:1px solid var(--line);padding-bottom:.4rem;margin-bottom:.9rem}
+  .bar-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem}
+  .bar-label{width:160px;font-size:.85rem;color:var(--muted);flex-shrink:0}
+  .bar-track{flex:1;background:var(--line);border-radius:6px;height:14px;overflow:hidden}
+  .bar-fill{height:100%;background:var(--accent);border-radius:6px}
+  .bar-val{width:110px;font-size:.8rem;text-align:right;flex-shrink:0}
+  .bar-val .pct{font-weight:600;color:var(--ink)}
+  .bar-ret{font-size:.75rem;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:.85rem}
+  th,td{padding:.45rem .5rem;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--muted);font-weight:600}
+  .chip{display:inline-block;background:var(--pending-soft);color:var(--pending);border-radius:999px;
+    padding:.15rem .6rem;font-size:.72rem;font-weight:600}
+  .chip.good{background:var(--good-soft);color:var(--good)}
+  .chip.bad{background:var(--bad-soft);color:var(--bad)}
+  .chip.warn{background:var(--warn-soft);color:var(--warn)}
+  .note{background:var(--pending-soft);border-left:3px solid var(--pending);border-radius:6px;
+    padding:.7rem .9rem;font-size:.85rem;color:var(--muted);margin-top:.5rem}
+  .note.ok{background:var(--good-soft);border-left-color:var(--good)}
+  .pill{display:inline-block;border-radius:8px;padding:.15rem .5rem;font-size:.8rem;font-weight:600}
+  .pill.good{background:var(--good-soft);color:var(--good)}
+  .pill.bad{background:var(--bad-soft);color:var(--bad)}
+  .pill.pending{background:var(--pending-soft);color:var(--pending)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  @media (max-width:700px){ .grid2{grid-template-columns:1fr} .cards{grid-template-columns:1fr 1fr} }
+  footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--line);padding-top:1rem;margin-top:2rem}
+  .status-line{font-size:.8rem;color:var(--muted);margin-bottom:.5rem}
+</style>
+</head>
+<body>
+<nav class="sitenav" aria-label="Site">
+  <a href="index.html">Portfolio</a><span aria-hidden="true">·</span><a href="prep.html">Prep</a><span aria-hidden="true">·</span><a href="questions.html">Questions</a><span aria-hidden="true">·</span><a href="stories.html">Stories</a><span aria-hidden="true">·</span><a href="design.html">Design</a><span aria-hidden="true">·</span><a href="mr.html" aria-current="page">MRI</a>
+</nav>
+<main id="main">
+  <header class="hero">
+    <h1>Portfolio MRI</h1>
+    <div class="tagline">What is working, what is not, how consistent</div>
+    <div class="meta" id="asof">Loading...</div>
+  </header>
+
+  <div class="status-line" id="dataload"></div>
+
+  <div class="cards" id="headcards"></div>
+
+  <section class="section" id="alloc-section">
+    <h2>Allocation and return by sleeve</h2>
+    <div id="alloc"></div>
+  </section>
+
+  <section class="section" id="contrib-section">
+    <h2>Contribution matrix</h2>
+    <div class="grid2">
+      <div id="gainers"></div>
+      <div id="losers"></div>
+    </div>
+  </section>
+
+  <section class="section" id="conc-section" style="display:none">
+    <h2>Concentration</h2>
+    <div id="concentration"></div>
+  </section>
+
+  <section class="section" id="stress-section" style="display:none">
+    <h2>Stress test</h2>
+    <div id="stress"></div>
+  </section>
+
+  <section class="section" id="disc-section">
+    <h2>Investment discipline</h2>
+    <div id="discipline"></div>
+  </section>
+
+  <section class="section" id="goal-section">
+    <h2>Goal funding</h2>
+    <div id="goals"></div>
+  </section>
+
+  <section class="section" id="dq-section" style="display:none">
+    <h2>Data readiness</h2>
+    <div id="dataquality"></div>
+  </section>
+
+  <footer>Portfolio MRI v1 · data is personal and not published · source on GitHub has no portfolio data</footer>
+</main>
+<script>
+const STATE = {d:null};
+
+function fmtINR(v){
+  if (v === null || v === undefined || isNaN(v)) return "-";
+  const sign = v < 0 ? "-" : "";
+  const abs = Math.abs(v);
+  if (abs >= 10000000) return sign + "₹" + (abs/10000000).toFixed(2) + " Cr";
+  if (abs >= 100000) return sign + "₹" + (abs/100000).toFixed(2) + " L";
+  return sign + "₹" + abs.toLocaleString("en-IN");
+}
+function fmtPct(v){ return (v>=0?"+":"") + (typeof v==="number"?v.toFixed(1):v) + "%"; }
+function cls(v){ return v>0 ? "pos":"neg"; }
+function chip(label, kind){ return `<span class="chip ${kind || ""}">${label}</span>`; }
+
+function empty(text){
+  return `<div class="note">${text}</div>`;
+}
+
+function renderHead(){
+  const s = STATE.d.summary.total;
+  const el = document.getElementById("headcards");
+  const disc = STATE.d.discipline || {};
+  const grade = disc.grade ? `<span class="pill ${disc.grade==="A"||disc.grade==="B+"?"good":"pending"}">${disc.grade}</span>` : `<span class="pill pending">N/A</span>`;
+  const goal = STATE.d.goals || {};
+  const goalV = goal.status === "funded" ? "On track" : "Needs baseline";
+  const cards = [
+    {t:"Portfolio value", big:fmtINR(s.market_value), sub:"incl. realised + unrealised"},
+    {t:"Lifetime P&L", big:`<span class="${cls(s.pnl)}">${fmtINR(s.pnl)}</span>`, sub:fmtPct(s.return_pct)+" on cost"},
+    {t:"Discipline", big:grade, sub:"trailing 12 months"},
+    {t:"Goal funding", big:goalV, sub:"requires goal baseline"},
+  ];
+  el.innerHTML = cards.map(c=>`<div class="card"><h3>${c.t}</h3><div class="big">${c.big}</div><div class="sub">${c.sub}</div></div>`).join("");
+}
+
+function renderAlloc(){
+  const s = STATE.d.summary;
+  const sleeves = Object.values(s.sleeves).sort((a,b)=>b.weight-a.weight);
+  const el = document.getElementById("alloc");
+  if (!sleeves.length){ el.innerHTML = empty("No allocation data."); return; }
+  el.innerHTML = sleeves.map(x=>`
+    <div class="bar-row">
+      <div class="bar-label">${x.name.replace(/-/g," ")}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.max(1,x.weight)}%"></div></div>
+      <div class="bar-val">
+        <div><span class="pct">${x.weight.toFixed(1)}%</span> <span class="bar-ret ${cls(x.return_pct)}">(${fmtPct(x.return_pct)})</span></div>
+        <div class="bar-ret">${fmtINR(x.market)} · ${fmtINR(x.pnl)}</div>
+      </div>
+    </div>`).join("");
+}
+
+function renderContrib(){
+  const c = STATE.d.summary.contribution;
+  const label = x => x.name.length>28 ? x.name.slice(0,27)+"…" : x.name;
+  const rows = (list, isGain) => {
+    if (!list || !list.length) return `<p style="color:var(--muted);font-size:.85rem">None recorded${isGain?".":"."}</p>`;
+    return `<table><tr><th>Holding</th><th>P&L</th><th>Return</th><th>Weight</th></tr>` +
+      list.map(x=>`<tr><td>${label(x)} ${chip(x.sleeve)}</td>
+        <td class="${cls(x.pnl)}">${fmtINR(x.pnl)}</td>
+        <td class="${cls(x.return_pct)}">${fmtPct(x.return_pct)}</td>
+        <td>${x.weight_pct.toFixed(1)}%</td></tr>`).join("") + `</table>`;
+  };
+  const gText = `Winners: ${c.n_holdings} holdings, ${c.win_rate_pct}% win rate, net +${fmtINR(c.winners_pnl)}`;
+  const lText = `Losers net −${fmtINR(Math.abs(c.losers_pnl))}`;
+  document.getElementById("gainers").innerHTML =
+    `<h3 style="font-size:.9rem;margin-bottom:.4rem">Top gainers</h3>${rows(c.top_gainers,true)}` +
+    `<p style="font-size:.75rem;color:var(--good);margin-top:.4rem">${gText}</p>`;
+  document.getElementById("losers").innerHTML =
+    `<h3 style="font-size:.9rem;margin-bottom:.4rem">Top losers</h3>${rows(c.top_losers,false)}` +
+    `<p style="font-size:.75rem;color:var(--bad);margin-top:.4rem">${lText}</p>`;
+}
+
+function renderConcentration(){
+  const c = STATE.d.summary.concentration;
+  const el = document.getElementById("conc-section");
+  if (!c || (!c.above_5pct || !c.above_5pct.length) && c.effective_n_direct_equity===null){ el.style.display="none"; return; }
+  el.style.display="";
+  let html = "";
+  if (c.above_5pct && c.above_5pct.length){
+    html += `<table><tr><th>Position over 5% of direct equity</th><th>Weight</th><th>P&L</th></tr>` +
+      c.above_5pct.map(x=>`<tr><td>${x.name}</td><td>${x.weight_pct.toFixed(1)}%</td><td class="${cls(x.pnl)}">${fmtINR(x.pnl)}</td></tr>`).join("") + `</table>`;
+  }
+  if (c.effective_n_direct_equity !== null && c.effective_n_direct_equity !== undefined){
+    html += `<p style="font-size:.85rem;color:var(--muted);margin-top:.5rem">Effective N (direct equity, 1/Σw²): <b style="color:var(--ink)">${c.effective_n_direct_equity}</b> of ${STATE.d.summary.contribution.n_holdings} holdings.</p>`;
+  }
+  html += `<p style="font-size:.8rem;color:var(--muted);margin-top:.3rem">Below: MF look-through overlap (HDFC Midcap + Nippon Midcap150 vs direct midcaps) needs fund disclosures - added when available.</p>`;
+  document.getElementById("concentration").innerHTML = html;
+}
+
+function renderStress(){
+  const st = STATE.d.summary.stress;
+  const el = document.getElementById("stress-section");
+  if (!st){ el.style.display="none"; return; }
+  el.style.display="";
+  const after = st.est_portfolio_pnl_after;
+  const now = STATE.d.summary.total.pnl;
+  const chg = after !== null && now !== null ? after - now : null;
+  document.getElementById("stress").innerHTML =
+    `<div class="note warn" style="border-left-color:var(--warn)"><b>Scenario:</b> ${st.scenario}. Estimated portfolio P&L after: <b>${fmtINR(after)}</b>` +
+    (chg!==null ? ` <span class="${cls(chg)}">(${fmtINR(chg)})</span> · ${fmtPct(now? chg/Math.abs(now)*100 : 0)} relative` : "") + `.</div>`;
+}
+
+function renderDiscipline(){
+  const disc = STATE.d.discipline || {};
+  const el = document.getElementById("discipline");
+  if (!disc.components){
+    el.innerHTML = `<div class="note">${disc.note || "No discipline policy recorded yet."}</div>`;
+    return;
+  }
+  const comps = Object.values(disc.components).filter(Boolean);
+  const rows = comps.map(c=>`<div class="bar-row" style="margin-bottom:.3rem">
+      <div class="bar-label" style="width:130px">${c.label}</div>
+      <div class="bar-track"><div class="bar-fill" style="background:${c.score!==null?(c.score>=7?"var(--good)":"var(--warn)"):"var(--line)"};width:${c.score!==null?Math.max(2,c.score*10):2}%"></div></div>
+      <div class="bar-val" style="width:60px">${c.score!==null?c.score.toFixed(1)+"/10":"n/a"}</div>
+    </div>`).join("");
+  const letter = disc.grade ? `<span class="pill ${disc.grade==="A"||disc.grade==="B+"?"good":"pending"}">Grade: ${disc.grade}</span>` : "";
+  el.innerHTML = `${letter}<div style="margin:.4rem 0">${rows}</div><p style="font-size:.8rem;color:var(--muted)">${disc.note || ""}</p>`;
+}
+
+function renderGoals(){
+  const g = STATE.d.goals || {};
+  document.getElementById("goals").innerHTML = `<div class="note">${g.note || "Goal funding requires a dated required-corpus baseline per sleeve (retirement, son's education, home loan)."}</div>`;
+}
+
+function renderDataQuality(){
+  const dq = STATE.d.data_quality || {};
+  const map = {xirr:"XIRR vs simple return", behavior_ledger:"Behavioral ledger (holding period, round trips)", benchmark_relative:"Benchmark-relative / matched-flow XIRR"};
+  const items = Object.entries(map).map(([k,label])=>{
+    const v = dq[k];
+    if (v === "needs-cas") return `<tr><td>${label}</td><td><span class="chip warn">needs CAS / trade history</span></td></tr>`;
+    if (v === "needs-trade-history") return `<tr><td>${label}</td><td><span class="chip warn">needs trade ledger</span></td></tr>`;
+    if (v === "needs-trade-dates") return `<tr><td>${label}</td><td><span class="chip warn">needs purchase dates</span></td></tr>`;
+    return `<tr><td>${label}</td><td><span class="chip good">ready</span></td></tr>`;
+  }).join("");
+  const el = document.getElementById("dq-section");
+  if (!items){ el.style.display="none"; return; }
+  el.style.display="";
+  document.getElementById("dataquality").innerHTML = `<table><tr><th>Analysis</th><th>Readiness</th></tr>${items}</table>`;
+}
+
+function renderAll(){
+  renderHead();
+  renderAlloc();
+  renderContrib();
+  renderConcentration();
+  renderStress();
+  renderDiscipline();
+  renderGoals();
+  renderDataQuality();
+}
+
+async function load(){
+  const el = document.getElementById("dataload");
+  try{
+    let r = await fetch("mr-data.json", {cache:"no-store"});
+    if (!r.ok) throw new Error("HTTP "+r.status);
+    STATE.d = await r.json();
+    document.getElementById("asof").textContent =
+      "As of " + new Date(STATE.d.meta.as_of).toLocaleString("en-IN",{dateStyle:"long",timeStyle:"short"}) +
+      " · generated " + new Date(STATE.d.meta.generated_at).toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"});
+    el.textContent = "";
+    renderAll();
+  }catch(e){
+    try{
+      // Fallback for public mirrors / GitHub Pages: render the anonymous sample.
+      const r = await fetch("sample-data.json", {cache:"no-store"});
+      if (!r.ok) throw new Error("HTTP "+r.status);
+      STATE.d = await r.json();
+      document.getElementById("asof").textContent = "Sample data · " + STATE.d.meta.note;
+      el.innerHTML = `<div class="note">Personal data is not published. Showing the anonymous sample: ` + e.message + `.</div>`;
+      renderAll();
+    }catch(e2){
+      el.innerHTML = `<div class="note">Could not load mr-data.json (${e.message}). If you are a visitor, data is behind authentication by design.</div>`;
+    }
+  }
+}
+load();
+</script>
+</body>
+</html>
