@@ -39,3 +39,6 @@ The grade only activates after you record a policy: contribution schedule (amoun
 - The generator contains no personal data; it only reads local files.
 - The live data file is produced locally and must be served behind auth (see nginx `auth_basic` in the deployment notes) or kept off the public repo entirely.
 - Held positions, amounts, fund names and folios are personal data; this public repo intentionally omits them.
+## Rebuild (Sep 2026)
+
+Dashboard rebuilt with the OpenAI `build-web-data-visualization` Codex plugin: SVG allocation + diverging contribution charts, stat strip with XIRR, behavioral ledger, concentration, stress, discipline, goals, data readiness. Mobile-first, dark mode, reduced-motion, print styles, skip-link, no external assets. Data contract unchanged: `mr.html` fetches `mr-data.json` at runtime and falls back to `sample-data.json`.

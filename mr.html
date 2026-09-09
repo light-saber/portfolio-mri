@@ -1,366 +1,111 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex,nofollow">
 <title>Portfolio MRI</title>
 <style>
-  :root{
-    --accent:#0f766e; --accent-soft:#ccfbf1; --ink:#0b1320;
-    --paper:#fafaf7; --muted:#5b6472; --line:#e3e6ea;
-    --good:#15803d; --good-soft:#dcfce7; --bad:#b91c1c; --bad-soft:#fee2e2;
-    --warn:#b45309; --warn-soft:#fef3c7; --pending:#64748b; --pending-soft:#e2e8f0;
-  }
-  @media (prefers-color-scheme: dark){
-    :root{
-      --accent:#2dd4bf; --accent-soft:#134e4a; --ink:#e6edf3;
-      --paper:#0b1320; --muted:#9aa5b1; --line:#2a3644;
-      --good:#4ade80; --good-soft:#064e3b; --bad:#f87171; --bad-soft:#450a0a;
-      --warn:#fbbf24; --warn-soft:#451a03; --pending:#94a3b8; --pending-soft:#1e293b;
-    }
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:var(--paper); color:var(--ink); line-height:1.5;
-  }
-  a{color:var(--accent);text-decoration:none}
-  .sitenav{max-width:960px;margin:0 auto;padding:.9rem 1.25rem 0;font-size:.8rem;
-    color:var(--muted);display:flex;gap:.5rem;align-items:center}
-  .sitenav a{color:var(--muted)}
-  .sitenav a[aria-current="page"]{color:var(--accent);font-weight:600}
-  .sitenav a:hover{color:var(--accent)}
-  main{max-width:960px;margin:0 auto;padding:1.5rem 1.25rem 4rem}
-  header.hero{margin-bottom:1.5rem}
-  h1{font-size:1.8rem;line-height:1.2;letter-spacing:-0.02em}
-  .tagline{font-size:1rem;color:var(--accent);margin-top:.3rem}
-  .meta{color:var(--muted);font-size:.8rem;margin-top:.4rem}
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem;margin-bottom:1.5rem}
-  .card{background:var(--accent-soft);border-radius:10px;padding:.9rem 1rem}
-  .card h3{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.3rem}
-  .card .big{font-size:1.5rem;font-weight:700;color:var(--ink)}
-  .card .sub{font-size:.8rem;color:var(--muted)}
-  .pos{color:var(--good)} .neg{color:var(--bad)}
-  .section{margin-bottom:1.75rem}
-  h2{font-size:1.1rem;border-bottom:1px solid var(--line);padding-bottom:.4rem;margin-bottom:.9rem}
-  .bar-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem}
-  .bar-label{width:160px;font-size:.85rem;color:var(--muted);flex-shrink:0}
-  .bar-track{flex:1;background:var(--line);border-radius:6px;height:14px;overflow:hidden}
-  .bar-fill{height:100%;background:var(--accent);border-radius:6px}
-  .bar-val{width:110px;font-size:.8rem;text-align:right;flex-shrink:0}
-  .bar-val .pct{font-weight:600;color:var(--ink)}
-  .bar-ret{font-size:.75rem;color:var(--muted)}
-  table{width:100%;border-collapse:collapse;font-size:.85rem}
-  th,td{padding:.45rem .5rem;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
-  th:first-child,td:first-child{text-align:left}
-  th{color:var(--muted);font-weight:600}
-  .chip{display:inline-block;background:var(--pending-soft);color:var(--pending);border-radius:999px;
-    padding:.15rem .6rem;font-size:.72rem;font-weight:600}
-  .chip.good{background:var(--good-soft);color:var(--good)}
-  .chip.bad{background:var(--bad-soft);color:var(--bad)}
-  .chip.warn{background:var(--warn-soft);color:var(--warn)}
-  .note{background:var(--pending-soft);border-left:3px solid var(--pending);border-radius:6px;
-    padding:.7rem .9rem;font-size:.85rem;color:var(--muted);margin-top:.5rem}
-  .note.ok{background:var(--good-soft);border-left-color:var(--good)}
-  .pill{display:inline-block;border-radius:8px;padding:.15rem .5rem;font-size:.8rem;font-weight:600}
-  .pill.good{background:var(--good-soft);color:var(--good)}
-  .pill.bad{background:var(--bad-soft);color:var(--bad)}
-  .pill.pending{background:var(--pending-soft);color:var(--pending)}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-  @media (max-width:700px){ .grid2{grid-template-columns:1fr} .cards{grid-template-columns:1fr 1fr} }
-  footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--line);padding-top:1rem;margin-top:2rem}
-  .status-line{font-size:.8rem;color:var(--muted);margin-bottom:.5rem}
+:root{--bg:#f2f5f8;--surface:#fff;--ink:#172638;--muted:#526378;--line:#d7dfe8;--accent:#245ac0;--gain:#18713e;--loss:#b3333b;--track:#e6ebf1;--neutral:#6b7c90;color-scheme:light dark}
+.sitenav{position:sticky;top:0;z-index:10;backdrop-filter:blur(6px);background:color-mix(in srgb,var(--bg) 82%,transparent);border-bottom:1px solid var(--line);max-width:1320px;margin:auto;padding:10px 32px;font-size:13px;display:flex;gap:8px;color:var(--muted)}
+.sitenav a{color:var(--muted);text-decoration:none}.sitenav a:hover{color:var(--accent)}.sitenav a[aria-current="page"]{color:var(--accent);font-weight:700}
+@media(max-width:760px){.sitenav{padding:10px 16px;overflow-x:auto}}
+@media(prefers-color-scheme:dark){:root{--bg:#111923;--surface:#192430;--ink:#eef3f8;--muted:#afbdcd;--line:#3a4a5c;--accent:#91b6ff;--gain:#7ddd9d;--loss:#ff969c;--track:#2c3b4b;--neutral:#a2b2c5}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,sans-serif}main{max-width:1320px;margin:auto;padding:28px 32px 48px}h1,h2,h3,p,figure,dl{margin:0}h1{font-family:'Arial Narrow',system-ui,sans-serif;font-size:34px;letter-spacing:-1.4px;line-height:1.2}h2{font-size:18px;letter-spacing:-.4px}h3{font-size:14px}header{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:24px}.eyebrow{font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}.muted,small,.caption{color:var(--muted)}small,.caption{font-size:12px}.meta{text-align:right;font-size:12px;color:var(--muted)}.status{border:1px solid var(--accent);border-left:4px solid var(--accent);padding:12px 16px;margin-bottom:20px;background:var(--surface)}.status:empty{display:none}.summary{display:grid;grid-template-columns:1.3fr repeat(5,1fr);background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--accent);margin-bottom:24px}.stat{padding:20px 16px;min-width:0}.stat+.stat{border-left:1px solid var(--line)}dt{font-size:12px;color:var(--muted)}dd{margin:4px 0 0}.number{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-variant-numeric:tabular-nums;letter-spacing:-.7px}.stat .number{overflow-wrap:anywhere;font-size:clamp(18px,1.85vw,26px);font-weight:650;white-space:normal}.gain{color:var(--gain)}.loss{color:var(--loss)}.grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.4fr);gap:24px;align-items:start}.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:22px;min-width:0}.panel-head{margin-bottom:20px}.panel-head p{margin-top:4px}.stack{display:contents}.grid>.panel{grid-column:2;grid-row:1 / span 2}.stack>.panel:first-child{grid-column:1;grid-row:1}.stack>.panel:nth-child(2){grid-column:1;grid-row:2}.stack>.stress{grid-column:1/-1;grid-row:3}.allocation-row{margin-top:17px}.row-top{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.row-top strong{font-size:13px;font-weight:600}.row-top span{white-space:nowrap}.allocation-row svg{height:9px;margin:7px 0 3px}.allocation-detail{display:flex;justify-content:space-between;gap:10px;font-size:12px}.allocation-detail span{white-space:nowrap}svg{display:block;width:100%;overflow:visible}.allocation-total{height:25px;margin-bottom:10px}.track{fill:var(--track)}.mark{fill:var(--accent)}.context-mark{fill:var(--neutral)}.gain-mark{fill:var(--gain)}.loss-mark{fill:var(--loss)}.axis{stroke:var(--muted);stroke-width:1;vector-effect:non-scaling-stroke}.gridline{stroke:var(--line);stroke-width:1;vector-effect:non-scaling-stroke}.contribution-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,1fr) 105px;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}.holding{font-size:12px;line-height:1.3;overflow-wrap:anywhere}.holding small{display:block;margin-top:3px;font-size:10px}.contribution-row svg{height:22px}.contribution-row .number{text-align:right;font-size:12px;white-space:nowrap}.chart-key{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px}.chart-axis{display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,1fr) 105px;gap:12px;margin-top:8px}.ticks{display:flex;justify-content:space-between;gap:4px;font-size:10px;font-family:ui-monospace,monospace;color:var(--muted)}.contribution-summary{display:flex;flex-wrap:wrap;gap:8px 20px;padding-top:16px;font-size:12px}.section-space{margin-top:24px}.lower{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:24px;margin-top:24px}.big{font-size:32px;line-height:1.2}.key-metric{margin:12px 0 16px}.key-metric small{display:block;margin-top:6px}table{border-collapse:collapse;width:100%;font-size:12px}th,td{padding:10px 0;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{font-weight:500;color:var(--muted)}td:last-child{text-align:right;padding-left:12px;font-variant-numeric:tabular-nums}tbody tr:last-child td,tbody tr:last-child th{border-bottom:0}.stress{border-left:4px solid var(--accent)}.badge{display:inline-block;border:1px solid var(--line);padding:4px 9px;border-radius:4px;font-size:12px;font-weight:600;margin:10px 0}.note{font-size:12px;color:var(--muted);margin-top:12px;overflow-wrap:anywhere}.quality-row{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--line);font-size:12px}.quality-row span:last-child{text-align:right}.quality-row:last-child{border:0}details{margin-top:12px}summary{cursor:pointer;min-height:44px;padding:10px 0;font-size:12px;color:var(--accent)}a{color:var(--accent)}button,.file-label{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:10px 14px;cursor:pointer;display:inline-block;min-height:44px}input{max-width:100%;font:inherit}a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}.skip{position:absolute;left:12px;top:-100px;background:var(--surface);padding:12px;z-index:2}.skip:focus{top:12px}.file-tools{margin:14px 0}.file-tools label{display:block;margin-bottom:8px}footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;border-top:1px solid var(--line);margin-top:28px;padding-top:16px;font-size:11px;color:var(--muted)}[hidden]{display:none!important}
+@media(max-width:1050px){.summary{grid-template-columns:repeat(3,1fr)}.stat:nth-child(4){border-left:0}.stat:nth-child(n+4){border-top:1px solid var(--line)}.lower{grid-template-columns:1fr 1fr}.lower .panel:first-child{grid-column:1/-1}.contribution-row,.chart-axis{grid-template-columns:minmax(0,1fr) minmax(90px,1fr) 90px;gap:8px}}
+@media(max-width:760px){main{padding:20px 16px 32px}header{display:block;margin-bottom:18px}h1{font-size:30px}.meta{text-align:left;margin-top:12px}.summary{grid-template-columns:repeat(2,1fr);margin-bottom:16px}.stat{padding:14px 12px}.stat .number{font-size:22px}.stat:nth-child(odd){border-left:0}.stat:nth-child(even){border-left:1px solid var(--line)}.stat:nth-child(n+3){border-top:1px solid var(--line)}.grid,.lower{grid-template-columns:1fr;gap:16px}.grid>.panel{grid-column:1;grid-row:2}.stack>.panel:nth-child(2){grid-row:3}.stack>.stress{grid-row:4}.panel{padding:18px 16px}.lower,.section-space{margin-top:16px}.contribution-row{grid-template-columns:1fr 105px;gap:5px 10px;padding:11px 0}.holding{grid-column:1/-1;font-size:12px}.holding small{display:inline;margin-left:6px}.contribution-row svg{grid-column:1}.chart-axis{grid-template-columns:1fr 105px;gap:10px}.chart-axis>span{display:none}.lower .panel:first-child{grid-column:auto}.allocation-row{margin-top:16px}.panel-head{margin-bottom:16px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+@media print{body{background:white}.panel,.summary{break-inside:avoid}.file-tools,.skip{display:none}main{max-width:none;padding:0}}
 </style>
 </head>
 <body>
+<a class="skip" href="#dashboard">Skip to portfolio</a>
 <nav class="sitenav" aria-label="Site">
   <a href="index.html">Portfolio</a><span aria-hidden="true">·</span><a href="prep.html">Prep</a><span aria-hidden="true">·</span><a href="questions.html">Questions</a><span aria-hidden="true">·</span><a href="stories.html">Stories</a><span aria-hidden="true">·</span><a href="design.html">Design</a><span aria-hidden="true">·</span><a href="mr.html" aria-current="page">MRI</a>
 </nav>
-<main id="main">
-  <header class="hero">
-    <h1>Portfolio MRI</h1>
-    <div class="tagline">What is working, what is not, how consistent</div>
-    <div class="meta" id="asof">Loading...</div>
-  </header>
-
-  <div class="status-line" id="dataload"></div>
-
-  <div class="cards" id="headcards"></div>
-
-  <section class="section" id="alloc-section">
-    <h2>Allocation and return by sleeve</h2>
-    <div id="alloc"></div>
-  </section>
-
-  <section class="section" id="contrib-section">
-    <h2>Contribution matrix</h2>
-    <div class="grid2">
-      <div id="gainers"></div>
-      <div id="losers"></div>
-    </div>
-  </section>
-
-  <section class="section" id="conc-section" style="display:none">
-    <h2>Concentration</h2>
-    <div id="concentration"></div>
-  </section>
-
-  <section class="section" id="stress-section" style="display:none">
-    <h2>Stress test</h2>
-    <div id="stress"></div>
-  </section>
-
-  <section class="section" id="perf-section" style="display:none">
-    <h2>Performance (XIRR)</h2>
-    <div id="performance"></div>
-  </section>
-
-  <section class="section" id="behave-section" style="display:none">
-    <h2>Behavioral ledger</h2>
-    <div id="behavior"></div>
-  </section>
-
-  <section class="section" id="disc-section">
-    <h2>Investment discipline</h2>
-    <div id="discipline"></div>
-  </section>
-
-  <section class="section" id="goal-section">
-    <h2>Goal funding</h2>
-    <div id="goals"></div>
-  </section>
-
-  <section class="section" id="dq-section" style="display:none">
-    <h2>Data readiness</h2>
-    <div id="dataquality"></div>
-  </section>
-
-  <footer>Portfolio MRI v1 · data is personal and not published · source on GitHub has no portfolio data</footer>
+<main>
+<header><div><p class="eyebrow">Monthly portfolio review</p><h1>Portfolio MRI</h1><p class="muted">What is working, what is not, how consistent.</p></div><div class="meta" id="meta">Snapshot loading</div></header>
+<div id="status" class="status" role="status" aria-live="polite">Loading portfolio data...</div>
+<div id="file-tools" class="file-tools" hidden><label for="local-file">Open a portfolio JSON file from this device</label><input id="local-file" type="file" accept=".json,application/json"><p class="caption">Choose your data file or the anonymous sample. The file stays in this browser.</p></div>
+<div id="dashboard" tabindex="-1" hidden>
+<dl id="summary" class="summary" aria-label="Portfolio summary"></dl>
+<div class="grid"><div class="stack">
+<section class="panel"><div class="panel-head"><h2>Where the money sits</h2><p class="caption">Sleeve allocation · share of portfolio value</p></div><div id="allocation"></div></section>
+<section class="panel"><h2>Concentration</h2><div id="concentration"></div></section>
+<section class="panel stress"><p class="eyebrow">Hypothetical scenario</p><h2>Stress test</h2><div id="stress"></div></section>
+</div><section class="panel"><div class="panel-head"><h2>What drives the result</h2><p class="caption">Contribution matrix · holding P&amp;L in INR</p></div><div class="chart-key"><span>Loss ←</span><span>→ Gain</span></div><div id="contributions"></div></section></div>
+<div class="lower"><section class="panel"><h2>How consistent is the behavior?</h2><div id="behavior"></div></section><section class="panel"><h2>Investment discipline</h2><div id="discipline"></div></section><section class="panel"><h2>Goal funding</h2><div id="goals"></div></section></div>
+<section class="panel section-space"><h2>Data readiness &amp; methodology</h2><div id="quality"></div><div id="methodology"></div></section>
+</div>
+<noscript><p>JavaScript is required to render the portfolio JSON.</p></noscript>
+<footer><span>Portfolio MRI · monthly snapshot, not live prices</span><span>Runtime data only · no analytics or external dependencies</span></footer>
 </main>
 <script>
-const STATE = {d:null};
-
-function fmtINR(v){
-  if (v === null || v === undefined || isNaN(v)) return "-";
-  const sign = v < 0 ? "-" : "";
-  const abs = Math.abs(v);
-  if (abs >= 10000000) return sign + "₹" + (abs/10000000).toFixed(2) + " Cr";
-  if (abs >= 100000) return sign + "₹" + (abs/100000).toFixed(2) + " L";
-  return sign + "₹" + abs.toLocaleString("en-IN");
+'use strict';
+const $ = id => document.getElementById(id);
+const finite = v => typeof v === 'number' && Number.isFinite(v);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const number = v => finite(v) ? v.toLocaleString('en-IN',{maximumFractionDigits:2}) : 'Not available';
+function money(v, signed=false){
+ if(!finite(v)) return 'Not available';
+ const a=Math.abs(v), unit=a>=1e7?' Cr':a>=1e5?' L':'', divisor=a>=1e7?1e7:a>=1e5?1e5:1;
+ return (v<0?'−':signed&&v>0?'+':'')+'₹'+(a/divisor).toLocaleString('en-IN',{minimumFractionDigits:unit?2:0,maximumFractionDigits:unit?2:0})+unit;
 }
-function fmtPct(v){ return (v>=0?"+":"") + (typeof v==="number"?v.toFixed(1):v) + "%"; }
-function cls(v){ return v>0 ? "pos":"neg"; }
-function chip(label, kind){ return `<span class="chip ${kind || ""}">${label}</span>`; }
-
-function empty(text){
-  return `<div class="note">${text}</div>`;
+const pct = (v,signed=false) => finite(v)?(signed&&v>0?'+':'')+number(v)+'%':'Not available';
+const tone = v => finite(v)?v>0?'gain':v<0?'loss':'':'';
+const name = v => String(v || 'Unnamed sleeve').replace(/-/g,' ').replace(/\bmf\b/gi,'MF').replace(/\belss\b/gi,'ELSS');
+const note = v => `<p class="note">${esc(v)}</p>`;
+const list = v => Array.isArray(v)?v.filter(x=>x&&typeof x==='object'):[];
+function stat(label,value,detail='',kind=''){return `<div class="stat"><dt>${esc(label)}</dt><dd class="number ${kind}">${esc(value)}</dd><dd class="caption">${esc(detail)}</dd></div>`;}
+function valid(d){if(!d || !d.summary || !d.summary.total || typeof d.summary.total!=='object') throw new Error('Invalid portfolio schema');return d;}
+function svgBar(v, max, diverging=false, cls='mark'){
+ const end=finite(v)&&max>0?v/max*(diverging?50:100):0;
+ const start=diverging?50:0;
+ return `<svg viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><path class="gridline" d="M0 0V12 M100 0V12"/><rect class="${cls}" x="${start+Math.min(0,end)}" y="3" width="${Math.abs(end)}" height="6"/><path class="axis" d="M${start} 0V12"/></svg>`;
 }
-
-function renderHead(){
-  const s = STATE.d.summary.total;
-  const el = document.getElementById("headcards");
-  const disc = STATE.d.discipline || {};
-  const grade = disc.grade ? `<span class="pill ${disc.grade==="A"||disc.grade==="B+"?"good":"pending"}">${disc.grade}</span>` : `<span class="pill pending">N/A</span>`;
-  const goal = STATE.d.goals || {};
-  const goalV = goal.status === "funded" ? "On track" : "Needs baseline";
-  const cards = [
-    {t:"Portfolio value", big:fmtINR(s.market_value), sub:"incl. realised + unrealised"},
-    {t:"Lifetime P&L", big:`<span class="${cls(s.pnl)}">${fmtINR(s.pnl)}</span>`, sub:fmtPct(s.return_pct)+" on cost"},
-    {t:"Discipline", big:grade, sub:"trailing 12 months"},
-    {t:"Goal funding", big:goalV, sub:"requires goal baseline"},
-  ];
-  el.innerHTML = cards.map(c=>`<div class="card"><h3>${c.t}</h3><div class="big">${c.big}</div><div class="sub">${c.sub}</div></div>`).join("");
+function render(d,source){
+ valid(d);
+ const s=d.summary,t=s.total,p=d.performance||{},ready=p.status==='ready';
+ const eq=ready?p.equity_xirr_pct:null,mf=ready?p.mf_xirr_pct:null;
+ const blend=finite(eq)&&finite(mf)?(eq+mf)/2:null;
+ $('summary').innerHTML=stat('Portfolio value',money(t.market_value),'Current market value')+stat('Total P&L',money(t.pnl,true),'Reported cumulative P&L',tone(t.pnl))+stat('Return on cost',pct(t.return_pct,true),'Not annualized',tone(t.return_pct))+stat('Equity XIRR',pct(eq,true),'Money-weighted annualized',tone(eq))+stat('MF XIRR',pct(mf,true),'Money-weighted annualized',tone(mf))+stat('Blended estimate',pct(blend,true),'Simple mean · not portfolio XIRR',tone(blend));
+ const sleeves=Object.values(s.sleeves||{}).filter(x=>x&&typeof x==='object').sort((a,b)=>(b.weight||0)-(a.weight||0));
+ let offset=0;
+ const weights=sleeves.map(x=>finite(x.weight)&&x.weight>=0?x.weight:0),sum=weights.reduce((a,b)=>a+b,0),domain=Math.max(100,sum,...weights);
+ const segments=sleeves.map((x,i)=>{const width=weights[i]/domain*100;const r=`<rect x="${offset}" y="0" width="${width}" height="20" class="${i%2?'context-mark':'mark'}" stroke="var(--surface)" stroke-width=".5"/>`;offset+=width;return r;}).join('');
+ $('allocation').innerHTML=sleeves.length?`<svg class="allocation-total" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true">${segments}</svg><p class="caption">${esc(pct(sum))} reported allocation</p>`+sleeves.map((x,i)=>`<div class="allocation-row"><div class="row-top"><strong>${esc(name(x.name))}</strong><span class="number">${esc(pct(x.weight))}</span></div>${svgBar(weights[i],domain,false,i%2?'context-mark':'mark')}<div class="allocation-detail"><span>${esc(money(x.market))}</span><span class="${tone(x.return_pct)}">${esc(pct(x.return_pct,true))} return</span></div><p class="caption ${tone(x.pnl)}">${esc(money(x.pnl,true))} P&amp;L</p></div>`).join(''):note('No sleeve allocation supplied.');
+ const c=s.contribution||{},rows=[...list(c.top_gainers),...list(c.top_losers)].sort((a,b)=>(finite(b.pnl)?b.pnl:-Infinity)-(finite(a.pnl)?a.pnl:-Infinity));
+ const extent=Math.max(...rows.map(x=>finite(x.pnl)?Math.abs(x.pnl):0),0);
+ $('contributions').innerHTML=rows.length?rows.map(x=>`<div class="contribution-row"><div class="holding">${esc(x.name||'Unnamed holding')}<small>${esc(name(x.sleeve))} · ${esc(pct(x.return_pct,true))} return</small></div>${svgBar(x.pnl,extent,true,x.pnl<0?'loss-mark':'gain-mark')}<span class="number ${tone(x.pnl)}">${esc(money(x.pnl,true))}</span></div>`).join('')+`<div class="chart-axis"><span></span><div class="ticks"><span>${esc(money(-extent))}</span><span>${esc(money(0))}</span><span>${esc(money(extent))}</span></div></div>`:note('No holding contributions supplied.');
+ $('contributions').innerHTML+=`<div class="contribution-summary"><span>${esc(number(c.n_holdings))} reported holdings</span><span>${esc(pct(c.win_rate_pct))} win rate</span><span class="${tone(c.winners_pnl)}">Winners ${esc(money(c.winners_pnl,true))}</span><span class="${tone(c.losers_pnl)}">Losers ${esc(money(c.losers_pnl,true))}</span></div>`+note('Selected gainers and losers, not the full portfolio. All bars share one scale; very small contributions may appear as slivers. Reported aggregate totals can cover a different universe than these selected rows.');
+ const con=s.concentration||{};
+ $('concentration').innerHTML=`<div class="key-metric"><span class="number big">${esc(number(con.effective_n_direct_equity))}</span><small>Effective N · direct equity · 1 / Σw²</small></div>`+note('Equivalent equally weighted positions. Lower effective N means greater concentration; fund look-through overlap is not supplied.')+(list(con.above_5pct).length?`<table><caption class="caption">Source-flagged concentrated positions · reported weights</caption><tbody>${list(con.above_5pct).map(x=>`<tr><th scope="row">${esc(x.name)}</th><td>${esc(pct(x.weight_pct))}<br><span class="${tone(x.pnl)}">${esc(money(x.pnl,true))}</span></td></tr>`).join('')}</tbody></table>`:note('No concentrated positions supplied.'));
+ const st=s.stress;
+ $('stress').innerHTML=st?note(st.scenario||'Scenario description unavailable')+`<div class="key-metric"><span class="number big ${tone(st.est_portfolio_pnl_after)}">${esc(money(st.est_portfolio_pnl_after,true))}</span><small>Estimated portfolio P&amp;L after scenario</small></div>`+note(finite(st.est_portfolio_pnl_after)&&finite(t.pnl)?money(st.est_portfolio_pnl_after-t.pnl,true)+' change from reported P&L. Scenario estimate, not a forecast.':'Scenario estimate, not a forecast.'):note('No stress scenario supplied.');
+ const b=ready?p.behavior:null;
+ $('behavior').innerHTML=b?`<table><tbody>${[['Average holding period',finite(b.avg_holding_years)?number(b.avg_holding_years)+' years':'Not available'],['Held symbols with sell history',number(b.held_with_sell_history)],['Sells within 90 days of first buy',number(b.sells_within_90d_of_first_buy)],['Gross bought · supplied ledger',money(b.gross_bought)],['Gross sold · supplied ledger',money(b.gross_sold)]].map(([k,v])=>`<tr><th scope="row">${esc(k)}</th><td class="number">${esc(v)}</td></tr>`).join('')}</tbody></table>`+note('Early sells are a churn diagnostic, not a policy violation. Ledger coverage follows the supplied source notes.'):note('Not available. A dated trade ledger is needed to assess holding periods and churn.');
+ const disc=d.discipline||{},g=d.goals||{};
+ $('discipline').innerHTML=`<span class="badge">${esc(disc.status==='graded'&&disc.grade?'Reported grade: '+disc.grade:'Needs policy')}</span>`+note(disc.note||'Define contribution, holding, rebalancing and risk rules before assigning a grade.')+(disc.components?`<dl>${Object.values(disc.components).filter(Boolean).map(x=>`<div class="quality-row"><dt>${esc(x.label)}</dt><dd>${esc(number(x.score))} / 10 · ${esc(pct(finite(x.weight)?x.weight*100:null))} weight</dd></div>`).join('')}</dl>`:'');
+ $('goals').innerHTML='<span class="badge">Needs baseline</span>'+note(g.note||'Add a dated target corpus, horizon and assigned assets for each goal.')+note('Funding progress cannot be verified without a required-corpus baseline.');
+ const quality=d.data_quality||{},labels={xirr:'XIRR',behavior_ledger:'Behavioral ledger',benchmark_relative:'Benchmark-relative return'};
+ $('quality').innerHTML=Object.entries(labels).map(([k,label])=>`<div class="quality-row"><span>${label}</span><span>${esc(String(quality[k]||'Not supplied').replace(/-/g,' '))}</span></div>`).join('');
+ $('methodology').innerHTML=note('Blended estimate is the unweighted mean of the two supplied sleeve XIRRs, not a combined portfolio XIRR. A true portfolio XIRR requires all dated cash flows.')+ (p.note?note(p.note):'')+(Array.isArray(p.notes)&&p.notes.length?`<details><summary>Performance source notes</summary>${p.notes.map(note).join('')}</details>`:'');
+ const date=v=>{const dt=new Date(v);return v&&!Number.isNaN(dt.getTime())?dt.toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}):'Not supplied';};
+ $('meta').textContent='As of '+date(d.meta?.as_of||s.as_of)+' · Generated '+date(d.meta?.generated_at);
+ $('status').textContent=source==='sample'?'Sample data · anonymous demonstration. Personal data could not be loaded.':source==='file'?'Local file · rendered only in this browser.':'Local portfolio data · snapshot loaded';
+ $('dashboard').hidden=false;
+ document.documentElement.dataset.ready='true';
+ document.documentElement.dataset.source=source;
 }
-
-function renderAlloc(){
-  const s = STATE.d.summary;
-  const sleeves = Object.values(s.sleeves).sort((a,b)=>b.weight-a.weight);
-  const el = document.getElementById("alloc");
-  if (!sleeves.length){ el.innerHTML = empty("No allocation data."); return; }
-  el.innerHTML = sleeves.map(x=>`
-    <div class="bar-row">
-      <div class="bar-label">${x.name.replace(/-/g," ")}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.max(1,x.weight)}%"></div></div>
-      <div class="bar-val">
-        <div><span class="pct">${x.weight.toFixed(1)}%</span> <span class="bar-ret ${cls(x.return_pct)}">(${fmtPct(x.return_pct)})</span></div>
-        <div class="bar-ret">${fmtINR(x.market)} · ${fmtINR(x.pnl)}</div>
-      </div>
-    </div>`).join("");
-}
-
-function renderContrib(){
-  const c = STATE.d.summary.contribution;
-  const label = x => x.name.length>28 ? x.name.slice(0,27)+"…" : x.name;
-  const rows = (list, isGain) => {
-    if (!list || !list.length) return `<p style="color:var(--muted);font-size:.85rem">None recorded${isGain?".":"."}</p>`;
-    return `<table><tr><th>Holding</th><th>P&L</th><th>Return</th><th>Weight</th></tr>` +
-      list.map(x=>`<tr><td>${label(x)} ${chip(x.sleeve)}</td>
-        <td class="${cls(x.pnl)}">${fmtINR(x.pnl)}</td>
-        <td class="${cls(x.return_pct)}">${fmtPct(x.return_pct)}</td>
-        <td>${x.weight_pct.toFixed(1)}%</td></tr>`).join("") + `</table>`;
-  };
-  const gText = `Winners: ${c.n_holdings} holdings, ${c.win_rate_pct}% win rate, net +${fmtINR(c.winners_pnl)}`;
-  const lText = `Losers net −${fmtINR(Math.abs(c.losers_pnl))}`;
-  document.getElementById("gainers").innerHTML =
-    `<h3 style="font-size:.9rem;margin-bottom:.4rem">Top gainers</h3>${rows(c.top_gainers,true)}` +
-    `<p style="font-size:.75rem;color:var(--good);margin-top:.4rem">${gText}</p>`;
-  document.getElementById("losers").innerHTML =
-    `<h3 style="font-size:.9rem;margin-bottom:.4rem">Top losers</h3>${rows(c.top_losers,false)}` +
-    `<p style="font-size:.75rem;color:var(--bad);margin-top:.4rem">${lText}</p>`;
-}
-
-function renderConcentration(){
-  const c = STATE.d.summary.concentration;
-  const el = document.getElementById("conc-section");
-  if (!c || (!c.above_5pct || !c.above_5pct.length) && c.effective_n_direct_equity===null){ el.style.display="none"; return; }
-  el.style.display="";
-  let html = "";
-  if (c.above_5pct && c.above_5pct.length){
-    html += `<table><tr><th>Position over 5% of direct equity</th><th>Weight</th><th>P&L</th></tr>` +
-      c.above_5pct.map(x=>`<tr><td>${x.name}</td><td>${x.weight_pct.toFixed(1)}%</td><td class="${cls(x.pnl)}">${fmtINR(x.pnl)}</td></tr>`).join("") + `</table>`;
-  }
-  if (c.effective_n_direct_equity !== null && c.effective_n_direct_equity !== undefined){
-    html += `<p style="font-size:.85rem;color:var(--muted);margin-top:.5rem">Effective N (direct equity, 1/Σw²): <b style="color:var(--ink)">${c.effective_n_direct_equity}</b> of ${STATE.d.summary.contribution.n_holdings} holdings.</p>`;
-  }
-  html += `<p style="font-size:.8rem;color:var(--muted);margin-top:.3rem">Below: MF look-through overlap (HDFC Midcap + Nippon Midcap150 vs direct midcaps) needs fund disclosures - added when available.</p>`;
-  document.getElementById("concentration").innerHTML = html;
-}
-
-function renderStress(){
-  const st = STATE.d.summary.stress;
-  const el = document.getElementById("stress-section");
-  if (!st){ el.style.display="none"; return; }
-  el.style.display="";
-  const after = st.est_portfolio_pnl_after;
-  const now = STATE.d.summary.total.pnl;
-  const chg = after !== null && now !== null ? after - now : null;
-  document.getElementById("stress").innerHTML =
-    `<div class="note warn" style="border-left-color:var(--warn)"><b>Scenario:</b> ${st.scenario}. Estimated portfolio P&L after: <b>${fmtINR(after)}</b>` +
-    (chg!==null ? ` <span class="${cls(chg)}">(${fmtINR(chg)})</span> · ${fmtPct(now? chg/Math.abs(now)*100 : 0)} relative` : "") + `.</div>`;
-}
-
-function renderDiscipline(){
-  const disc = STATE.d.discipline || {};
-  const el = document.getElementById("discipline");
-  if (!disc.components){
-    el.innerHTML = `<div class="note">${disc.note || "No discipline policy recorded yet."}</div>`;
-    return;
-  }
-  const comps = Object.values(disc.components).filter(Boolean);
-  const rows = comps.map(c=>`<div class="bar-row" style="margin-bottom:.3rem">
-      <div class="bar-label" style="width:130px">${c.label}</div>
-      <div class="bar-track"><div class="bar-fill" style="background:${c.score!==null?(c.score>=7?"var(--good)":"var(--warn)"):"var(--line)"};width:${c.score!==null?Math.max(2,c.score*10):2}%"></div></div>
-      <div class="bar-val" style="width:60px">${c.score!==null?c.score.toFixed(1)+"/10":"n/a"}</div>
-    </div>`).join("");
-  const letter = disc.grade ? `<span class="pill ${disc.grade==="A"||disc.grade==="B+"?"good":"pending"}">Grade: ${disc.grade}</span>` : "";
-  el.innerHTML = `${letter}<div style="margin:.4rem 0">${rows}</div><p style="font-size:.8rem;color:var(--muted)">${disc.note || ""}</p>`;
-}
-
-function renderGoals(){
-  const g = STATE.d.goals || {};
-  document.getElementById("goals").innerHTML = `<div class="note">${g.note || "Goal funding requires a dated required-corpus baseline per sleeve (retirement, son's education, home loan)."}</div>`;
-}
-
-function renderPerformance(){
-  const p = STATE.d.performance;
-  const el = document.getElementById("perf-section");
-  if (!p || p.status !== "ready") {
-    if (p && p.status === "needs-cas"){
-      el.style.display = "";
-      document.getElementById("performance").innerHTML = `<div class="note">${p.note || "Performance data pending."}</div>`;
-    }
-    return;
-  }
-  el.style.display = "";
-  const eq = p.equity_xirr_pct;
-  const mf = p.mf_xirr_pct;
-  const cards = [
-    {t:"Equity XIRR", big: eq!==null ? `<span class="${cls(eq)}">${eq.toFixed(2)}%</span>` : "n/a", sub:"money-weighted, incl. current value"},
-    {t:"MF XIRR", big: mf!==null ? `<span class="${cls(mf)}">${mf.toFixed(2)}%</span>` : "n/a", sub:"money-weighted, incl. current value"},
-    {t:"Blended XIRR", big: (eq!==null&&mf!==null) ? `<span class="${cls((eq+mf)/2)}">${((eq+mf)/2).toFixed(2)}%</span>` : "n/a", sub:"simple average of sleeves"},
-  ];
-  const notes = (p.notes||[]).map(n=>`<div class="note" style="margin-top:.3rem">${n}</div>`).join("");
-  document.getElementById("performance").innerHTML =
-    `<div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">` +
-    cards.map(c=>`<div class="card"><h3>${c.t}</h3><div class="big">${c.big}</div><div class="sub">${c.sub}</div></div>`).join("") +
-    `</div>${notes}`;
-}
-
-function renderBehavior(){
-  const p = STATE.d.performance;
-  const el = document.getElementById("behave-section");
-  if (!p || p.status !== "ready" || !p.behavior) return;
-  el.style.display = "";
-  const b = p.behavior;
-  const rows = [
-    {t:"Avg holding period (current)", v: b.avg_holding_years!==null? b.avg_holding_years+" years":"n/a"},
-    {t:"Held symbols with any sell history", v: b.held_with_sell_history},
-    {t:"Sells within 90 days of first buy", v: b.sells_within_90d_of_first_buy, warn: b.sells_within_90d_of_first_buy>0},
-    {t:"Gross bought since 2020", v: fmtINR(b.gross_bought)},
-    {t:"Gross sold since 2020", v: fmtINR(b.gross_sold)},
-  ];
-  document.getElementById("behavior").innerHTML =
-    `<table><tr><th>Metric</th><th>Value</th></tr>` +
-    rows.map(r=>`<tr><td>${r.t}</td><td>${r.warn?`<span class="chip warn">${r.v}</span>`:r.v}</td></tr>`).join("") +
-    `</table>` +
-    `<p style="font-size:.8rem;color:var(--muted);margin-top:.4rem">Ledger: tradebook CSV from Zerodha Console (2020-07-30 to now). Sells within 90 days of first buy is a churn diagnostic, not a violation.</p>`;
-}
-
-function renderDataQuality(){
-  const dq = STATE.d.data_quality || {};
-  const map = {xirr:"XIRR vs simple return", behavior_ledger:"Behavioral ledger (holding period, round trips)", benchmark_relative:"Benchmark-relative / matched-flow XIRR"};
-  const items = Object.entries(map).map(([k,label])=>{
-    const v = dq[k];
-    if (v === "needs-cas") return `<tr><td>${label}</td><td><span class="chip warn">needs CAS / trade history</span></td></tr>`;
-    if (v === "needs-trade-history") return `<tr><td>${label}</td><td><span class="chip warn">needs trade ledger</span></td></tr>`;
-    if (v === "needs-trade-dates") return `<tr><td>${label}</td><td><span class="chip warn">needs purchase dates</span></td></tr>`;
-    return `<tr><td>${label}</td><td><span class="chip good">ready</span></td></tr>`;
-  }).join("");
-  const el = document.getElementById("dq-section");
-  if (!items){ el.style.display="none"; return; }
-  el.style.display="";
-  document.getElementById("dataquality").innerHTML = `<table><tr><th>Analysis</th><th>Readiness</th></tr>${items}</table>`;
-}
-
-function renderAll(){
-  renderHead();
-  renderAlloc();
-  renderContrib();
-  renderConcentration();
-  renderStress();
-  renderPerformance();
-  renderBehavior();
-  renderDiscipline();
-  renderGoals();
-  renderDataQuality();
-}
-
+async function fetchData(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error('Unavailable');return valid(await r.json());}
 async function load(){
-  const el = document.getElementById("dataload");
-  try{
-    let r = await fetch("mr-data.json", {cache:"no-store"});
-    if (!r.ok) throw new Error("HTTP "+r.status);
-    STATE.d = await r.json();
-    document.getElementById("asof").textContent =
-      "As of " + new Date(STATE.d.meta.as_of).toLocaleString("en-IN",{dateStyle:"long",timeStyle:"short"}) +
-      " · generated " + new Date(STATE.d.meta.generated_at).toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"});
-    el.textContent = "";
-    renderAll();
-  }catch(e){
-    try{
-      // Fallback for public mirrors / GitHub Pages: render the anonymous sample.
-      const r = await fetch("sample-data.json", {cache:"no-store"});
-      if (!r.ok) throw new Error("HTTP "+r.status);
-      STATE.d = await r.json();
-      document.getElementById("asof").textContent = "Sample data · " + STATE.d.meta.note;
-      el.innerHTML = `<div class="note">Personal data is not published. Showing the anonymous sample: ` + e.message + `.</div>`;
-      renderAll();
-    }catch(e2){
-      el.innerHTML = `<div class="note">Could not load mr-data.json (${e.message}). If you are a visitor, data is behind authentication by design.</div>`;
-    }
-  }
+ if(location.protocol==='file:'){$('file-tools').hidden=false;$('status').textContent='Local file mode · choose a JSON file to load the dashboard. Browsers restrict automatic access to adjacent files.';return;}
+ let data,source='real';
+ try{data=await fetchData('mr-data.json');}catch{try{data=await fetchData('sample-data.json');source='sample';}catch{$('status').textContent='Could not load portfolio or sample data. Check the JSON files and reload, or open a local file.';$('file-tools').hidden=false;return;}}
+ render(data,source);
 }
+$('local-file').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{const d=valid(JSON.parse(await file.text()));render(d,file.name==='sample-data.json'?'sample':'file');}catch{$('status').textContent='Could not read this portfolio JSON. Choose a valid file; any previously loaded snapshot remains visible.';}});
 load();
 </script>
 </body>
