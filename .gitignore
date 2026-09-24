@@ -2,3 +2,5 @@ mr-data.json
 mr-data-pass.txt
 refined-spec.md
 __pycache__/
+policy.json
+mri_api.py.tmp

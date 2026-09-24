@@ -384,6 +384,33 @@ def build_performance(equity, mf, as_of):
     }
 
 
+def build_goals(policy, summary):
+    """Goal funding from policy.goals: dated required-corpus targets mapped to sleeves."""
+    goals = (policy or {}).get("goals") or []
+    sleeves = summary.get("sleeves") or {}
+    if not goals:
+        return {"status": "needs-baseline",
+                "note": "Goal funding needs a dated required-corpus baseline per goal (retirement, son's education, home loan). Add goals in the Policy & Goals editor."}
+    rows = []
+    for g in goals:
+        linked = [str(s) for s in (g.get("sleeves") or [])]
+        corpus = sum(
+            float(s.get("market") or 0)
+            for name, s in sleeves.items()
+            if name in linked or not linked
+        )
+        rows.append({
+            "name": g.get("name"),
+            "target_inr": g.get("target_inr"),
+            "target_date": g.get("target_date"),
+            "sleeves": linked,
+            "current_corpus_inr": corpus,
+            "funded_pct": round(corpus / g["target_inr"] * 100, 1) if g.get("target_inr") else None,
+        })
+    return {"status": "ready", "goals": rows,
+            "note": "Funding progress = current market value of linked sleeves vs target corpus. Not a forecast."}
+
+
 def main():
     equity = load_equity()
     mf = load_mf()
@@ -414,8 +441,7 @@ def main():
         "summary": summary,
         "performance": performance,
         "discipline": discipline,
-        "goals": {"status": "needs-baseline",
-                  "note": "Goal funding needs a dated required-corpus baseline per sleeve (retirement, son's education, home loan). Add to policy.json."},
+        "goals": build_goals(policy, summary),
         "data_quality": {
             "xirr": "ready" if perf_ready else "needs-cas",
             "behavior_ledger": "ready" if perf_ready else "needs-trade-history",

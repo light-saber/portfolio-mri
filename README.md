@@ -33,6 +33,16 @@ GitHub Pages demo: rename `sample-data.json` to `mr-data.json`, or just open `mr
 
 The grade only activates after you record a policy: contribution schedule (amounts/dates), holding/exit rules, allocation bands, quarterly review cadence, risk limits. Copy `policy.example.json` and fill in `score_rate` per component (0-10, trailing 12-month compliance ratio). Missing policy shows "needs-policy", never a fabricated grade.
 
+## Policy & goals editor (in-page)
+
+`mr.html` includes a Policy & Goals editor panel (hosted deployments only). It saves to `policy.json` next to the dashboard via a small loopback API (`mri_api.py`, systemd `mri-api.service`, port 8302) proxied by nginx at `/mri-api/` behind the site's basic auth:
+
+- `GET /mri-api/policy` — current policy
+- `POST /mri-api/policy` — validate + save (JSON object; known top-level keys only)
+- `POST /mri-api/refresh` — re-run `gen_mri_data.py` from the latest holdings snapshots
+
+Goals are dated required-corpus targets mapped to sleeves: `{"goals": [{"name", "target_inr", "target_date", "sleeves": [...]}]}`. When present, the Goal funding panel shows funded % per goal (current market value of linked sleeves vs target — a snapshot, not a forecast). `policy.json` is gitignored; it can hold personal targets.
+
 ## Privacy by design
 
 - The dashboard code ships with no personal numbers.

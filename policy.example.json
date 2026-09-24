@@ -23,5 +23,13 @@
     "sector_limit_pct": null,
     "liquidity_reserve_inr": 0,
     "score_rate": null
-  }
+  },
+  "goals": [
+    {
+      "name": "EXAMPLE goal (retirement, education, home loan...)",
+      "target_inr": 0,
+      "target_date": "YYYY-MM-DD",
+      "sleeves": ["direct-equity", "index-mf"]
+    }
+  ]
 }
