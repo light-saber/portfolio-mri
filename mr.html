@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Portfolio MRI</title>
 <style>
-:root{--bg:#f2f5f8;--surface:#fff;--ink:#172638;--muted:#526378;--line:#d7dfe8;--accent:#245ac0;--gain:#18713e;--loss:#b3333b;--track:#e6ebf1;--neutral:#6b7c90;color-scheme:light dark}
+:root{--bg:#f2f5f8;--surface:#fff;--ink:#172638;--muted:#526378;--line:#d7dfe8;--accent:#245ac0;--gain:#18713e;--loss:#b3333b;--track:#e6ebf1;--neutral:#6b7c90;--warn:#b45309;--warn-soft:#fdf6e3;color-scheme:light dark}
 .sitenav{position:sticky;top:0;z-index:10;backdrop-filter:blur(6px);background:color-mix(in srgb,var(--bg) 82%,transparent);border-bottom:1px solid var(--line);max-width:1320px;margin:auto;padding:10px 32px;font-size:13px;display:flex;gap:8px;color:var(--muted)}
 .sitenav a{color:var(--muted);text-decoration:none}.sitenav a:hover{color:var(--accent)}.sitenav a[aria-current="page"]{color:var(--accent);font-weight:700}
 @media(max-width:760px){.sitenav{padding:10px 16px;overflow-x:auto}}
@@ -15,13 +15,37 @@
 .us-summary{grid-template-columns:repeat(4,1fr);margin:0 0 20px}
 .us-summary .stat:nth-child(2){border-left:1px solid var(--line)}
 .weight-cell{display:grid;grid-template-columns:minmax(40px,1fr) 52px;gap:8px;align-items:center}
+/* Diagnosis panel: the plain-language read of the snapshot, placed above the charts. */
+.diagnosis{border-top:3px solid var(--accent);margin-bottom:24px}
+.finding-grp{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);
+  font-weight:700;margin:0 0 10px}
+.finding-grp:not(:first-child){margin-top:22px}
+.finding-list{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.finding-list li:last-child:nth-child(odd){grid-column:1/-1}
+.finding{border:1px solid var(--line);border-left:3px solid var(--neutral);border-radius:8px;
+  padding:14px 16px;background:var(--bg)}
+.finding.is-watch{border-left-color:var(--warn)}
+.split-grp{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:20px 0 8px;
+  padding-bottom:6px;border-bottom:1px solid var(--line);
+  font-size:12px;letter-spacing:1.2px;text-transform:uppercase;font-weight:700;color:var(--ink)}
+.split-grp:first-child{margin-top:0}
+.split-grp.is-loss{color:var(--loss)}
+.split-grp .caption{letter-spacing:0;text-transform:none;font-weight:400;font-size:12px}
+.finding-head{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.finding-head strong{font-size:15px;line-height:1.35;letter-spacing:-.2px}
+.finding p{font-size:14px;color:var(--muted);line-height:1.5}
+.badge{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+  padding:3px 7px;border-radius:4px;background:var(--track);color:var(--muted);white-space:nowrap}
+.finding.is-watch .badge{background:var(--warn-soft);color:var(--warn)}
+.finding .badge{flex:none}
+@media(max-width:1050px){.finding-list{grid-template-columns:1fr}}
 @media(max-width:760px){.us-summary{grid-template-columns:repeat(2,1fr)}.us-summary .stat:nth-child(3){border-left:0}.us-summary .stat:nth-child(n+3){border-top:1px solid var(--line)}}
 .editor-field{display:grid;grid-template-columns:220px 1fr;gap:8px 12px;align-items:center;margin-top:8px}.editor-field label{font-size:13px;color:var(--muted)}.editor-field input,.editor-field select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);min-width:0;width:100%}
 .editor-goal{border:1px solid var(--line);border-radius:8px;padding:12px;margin-top:12px}.editor-goal h3{margin-bottom:4px}
 .editor-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.editor-actions button{font:inherit;font-weight:650;padding:8px 16px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:var(--surface);cursor:pointer}.editor-actions button.secondary{background:transparent;color:var(--accent)}
 .editor-msg{margin-top:10px;font-size:13px}
 @media(max-width:760px){.editor-field{grid-template-columns:1fr}}
-@media(prefers-color-scheme:dark){:root{--bg:#111923;--surface:#192430;--ink:#eef3f8;--muted:#afbdcd;--line:#3a4a5c;--accent:#91b6ff;--gain:#7ddd9d;--loss:#ff969c;--track:#2c3b4b;--neutral:#a2b2c5}}
+@media(prefers-color-scheme:dark){:root{--bg:#111923;--surface:#192430;--ink:#eef3f8;--muted:#afbdcd;--line:#3a4a5c;--accent:#91b6ff;--gain:#7ddd9d;--loss:#ff969c;--track:#2c3b4b;--neutral:#a2b2c5;--warn:#fbbf24;--warn-soft:#3a2c08}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,sans-serif}main{max-width:1320px;margin:auto;padding:28px 32px 48px}h1,h2,h3,p,figure,dl{margin:0}h1{font-family:'Arial Narrow',system-ui,sans-serif;font-size:34px;letter-spacing:-1.4px;line-height:1.2}h2{font-size:18px;letter-spacing:-.4px}h3{font-size:14px}header{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:24px}.eyebrow{font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}.muted,small,.caption{color:var(--muted)}small,.caption{font-size:12px}.meta{text-align:right;font-size:12px;color:var(--muted)}.status{border:1px solid var(--accent);border-left:4px solid var(--accent);padding:12px 16px;margin-bottom:20px;background:var(--surface)}.status:empty{display:none}.summary{display:grid;grid-template-columns:1.3fr repeat(5,1fr);background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--accent);margin-bottom:24px}.stat{padding:20px 16px;min-width:0}.stat+.stat{border-left:1px solid var(--line)}dt{font-size:12px;color:var(--muted)}dd{margin:4px 0 0}.number{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-variant-numeric:tabular-nums;letter-spacing:-.7px}.stat .number{overflow-wrap:anywhere;font-size:clamp(18px,1.85vw,26px);font-weight:650;white-space:normal}.gain{color:var(--gain)}.loss{color:var(--loss)}.grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.4fr);gap:24px;align-items:start}.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:22px;min-width:0}.panel-head{margin-bottom:20px}.panel-head p{margin-top:4px}.stack{display:contents}.grid>.panel{grid-column:2;grid-row:1 / span 2}.stack>.panel:first-child{grid-column:1;grid-row:1}.stack>.panel:nth-child(2){grid-column:1;grid-row:2}.stack>.stress{grid-column:1/-1;grid-row:3}.allocation-row{margin-top:17px}.row-top{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.row-top strong{font-size:13px;font-weight:600}.row-top span{white-space:nowrap}.allocation-row svg{height:9px;margin:7px 0 3px}.allocation-detail{display:flex;justify-content:space-between;gap:10px;font-size:12px}.allocation-detail span{white-space:nowrap}svg{display:block;width:100%;overflow:visible}.allocation-total{height:25px;margin-bottom:10px}.track{fill:var(--track)}.mark{fill:var(--accent)}.context-mark{fill:var(--neutral)}.gain-mark{fill:var(--gain)}.loss-mark{fill:var(--loss)}.axis{stroke:var(--muted);stroke-width:1;vector-effect:non-scaling-stroke}.gridline{stroke:var(--line);stroke-width:1;vector-effect:non-scaling-stroke}.contribution-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,1fr) 105px;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}.holding{font-size:12px;line-height:1.3;overflow-wrap:anywhere}.holding small{display:block;margin-top:3px;font-size:10px}.contribution-row svg{height:22px}.contribution-row .number{text-align:right;font-size:12px;white-space:nowrap}.chart-key{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px}.chart-axis{display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,1fr) 105px;gap:12px;margin-top:8px}.ticks{display:flex;justify-content:space-between;gap:4px;font-size:10px;font-family:ui-monospace,monospace;color:var(--muted)}.contribution-summary{display:flex;flex-wrap:wrap;gap:8px 20px;padding-top:16px;font-size:12px}.section-space{margin-top:24px}.lower{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:24px;margin-top:24px}.big{font-size:32px;line-height:1.2}.key-metric{margin:12px 0 16px}.key-metric small{display:block;margin-top:6px}table{border-collapse:collapse;width:100%;font-size:12px}th,td{padding:10px 0;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{font-weight:500;color:var(--muted)}td:last-child{text-align:right;padding-left:12px;font-variant-numeric:tabular-nums}tbody tr:last-child td,tbody tr:last-child th{border-bottom:0}.stress{border-left:4px solid var(--accent)}.badge{display:inline-block;border:1px solid var(--line);padding:4px 9px;border-radius:4px;font-size:12px;font-weight:600;margin:10px 0}.note{font-size:12px;color:var(--muted);margin-top:12px;overflow-wrap:anywhere}.quality-row{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--line);font-size:12px}.quality-row span:last-child{text-align:right}.quality-row:last-child{border:0}details{margin-top:12px}summary{cursor:pointer;min-height:44px;padding:10px 0;font-size:12px;color:var(--accent)}a{color:var(--accent)}button,.file-label{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:10px 14px;cursor:pointer;display:inline-block;min-height:44px}input{max-width:100%;font:inherit}a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}.skip{position:absolute;left:12px;top:-100px;background:var(--surface);padding:12px;z-index:2}.skip:focus{top:12px}.file-tools{margin:14px 0}.file-tools label{display:block;margin-bottom:8px}footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;border-top:1px solid var(--line);margin-top:28px;padding-top:16px;font-size:11px;color:var(--muted)}[hidden]{display:none!important}
 @media(max-width:1050px){.summary{grid-template-columns:repeat(3,1fr)}.stat:nth-child(4){border-left:0}.stat:nth-child(n+4){border-top:1px solid var(--line)}.lower{grid-template-columns:1fr 1fr}.lower .panel:first-child{grid-column:1/-1}.contribution-row,.chart-axis{grid-template-columns:minmax(0,1fr) minmax(90px,1fr) 90px;gap:8px}}
 @media(max-width:760px){main{padding:20px 16px 32px}header{display:block;margin-bottom:18px}h1{font-size:30px}.meta{text-align:left;margin-top:12px}.summary{grid-template-columns:repeat(2,1fr);margin-bottom:16px}.stat{padding:14px 12px}.stat .number{font-size:22px}.stat:nth-child(odd){border-left:0}.stat:nth-child(even){border-left:1px solid var(--line)}.stat:nth-child(n+3){border-top:1px solid var(--line)}.grid,.lower{grid-template-columns:1fr;gap:16px}.grid>.panel{grid-column:1;grid-row:2}.stack>.panel:nth-child(2){grid-row:3}.stack>.stress{grid-row:4}.panel{padding:18px 16px}.lower,.section-space{margin-top:16px}.contribution-row{grid-template-columns:1fr 105px;gap:5px 10px;padding:11px 0}.holding{grid-column:1/-1;font-size:12px}.holding small{display:inline;margin-left:6px}.contribution-row svg{grid-column:1}.chart-axis{grid-template-columns:1fr 105px;gap:10px}.chart-axis>span{display:none}.lower .panel:first-child{grid-column:auto}.allocation-row{margin-top:16px}.panel-head{margin-bottom:16px}}
@@ -40,11 +64,15 @@
 <div id="file-tools" class="file-tools" hidden><label for="local-file">Open a portfolio JSON file from this device</label><input id="local-file" type="file" accept=".json,application/json"><p class="caption">Choose your data file or the anonymous sample. The file stays in this browser.</p></div>
 <div id="dashboard" tabindex="-1" hidden>
 <dl id="summary" class="summary" aria-label="Portfolio summary"></dl>
+<section class="panel diagnosis" id="diagnosis" aria-labelledby="diagnosis-h">
+  <div class="panel-head"><h2 id="diagnosis-h">What this snapshot says</h2><p class="caption">Plain-language read of the numbers below. Everything here is derived from this snapshot, nothing is forecast.</p></div>
+  <div id="diagnosis-body"></div>
+</section>
 <div class="grid"><div class="stack">
 <section class="panel"><div class="panel-head"><h2>Where the money sits</h2><p class="caption">Sleeve allocation · share of portfolio value</p></div><div id="allocation"></div></section>
 <section class="panel"><h2>Concentration</h2><div id="concentration"></div></section>
 <section class="panel stress"><p class="eyebrow">Hypothetical scenario</p><h2>Stress test</h2><div id="stress"></div></section>
-</div><section class="panel"><div class="panel-head"><h2>What drives the result</h2><p class="caption">Contribution matrix · holding P&amp;L in INR</p></div><div class="chart-key"><span>Loss ←</span><span>→ Gain</span></div><div id="contributions"></div></section></div>
+</div><section class="panel"><div class="panel-head"><h2>What drives the result</h2><p class="caption">Holding P&amp;L in rupees · working and not working, on one shared scale</p></div><div class="chart-key"><span>Loss ←</span><span>→ Gain</span></div><div id="contributions"></div></section></div>
 <div class="lower"><section class="panel"><h2>How consistent is the behavior?</h2><div id="behavior"></div></section><section class="panel"><h2>Investment discipline</h2><div id="discipline"></div></section><section class="panel"><h2>Goal funding</h2><div id="goals"></div></section></div>
 <section class="panel section-space"><div class="panel-head"><h2>US sleeve · Vested Finance</h2><p class="caption">US stocks &amp; ETFs held at Vested, converted to INR at the live USD/INR rate</p></div><div id="us-sleeve"></div></section>
 <section class="panel section-space" id="policy-editor"><h2>Policy &amp; Goals editor</h2><div id="editor-body"><p class="caption">Editor available only on the hosted site (needs the save API).</p></div></section>
@@ -64,6 +92,18 @@ function money(v, signed=false){
  const a=Math.abs(v), unit=a>=1e7?' Cr':a>=1e5?' L':'', divisor=a>=1e7?1e7:a>=1e5?1e5:1;
  return (v<0?'−':signed&&v>0?'+':'')+'₹'+(a/divisor).toLocaleString('en-IN',{minimumFractionDigits:unit?2:0,maximumFractionDigits:unit?2:0})+unit;
 }
+/* One unit per table. Default 'lakh' keeps every figure in the same scale so a
+   column of P&L can be compared without mental conversion; 'rupee' is for
+   panels where sub-lakh precision is genuinely useful (per-holding values). */
+function moneyUnit(v, signed=false, mode='lakh'){
+ if(!finite(v)) return 'Not available';
+ const s=v<0?'−':(signed&&v>0?'+':'');
+ if(mode==='rupee') return s+'₹'+Math.abs(v).toLocaleString('en-IN',{maximumFractionDigits:0});
+ const a=Math.abs(v), unit=a>=1e7?' Cr':a>=1e5?' L':' K', d=a>=1e7?1e7:a>=1e5?1e5:1e3;
+ return s+'₹'+(a/d).toLocaleString('en-IN',{minimumFractionDigits:a>=1e5?2:0,maximumFractionDigits:a>=1e5?2:0})+unit;
+}
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const monthLabel=v=>{const m=String(v||'').match(/^(\d{4})-(\d{2})/);return m?MON[+m[2]-1]+' '+m[1]:String(v||'');};
 const pct = (v,signed=false) => finite(v)?(signed&&v>0?'+':'')+number(v)+'%':'Not available';
 const tone = v => finite(v)?v>0?'gain':v<0?'loss':'':'';
 const name = v => String(v || 'Unnamed sleeve').replace(/-/g,' ').replace(/\bmf\b/gi,'MF').replace(/\belss\b/gi,'ELSS').replace(/^us equity$/i,'US equity');
@@ -81,38 +121,88 @@ function render(d,source){
  const s=d.summary,t=s.total,p=d.performance||{},ready=p.status==='ready';
  const eq=ready?p.equity_xirr_pct:null,mf=ready?p.mf_xirr_pct:null;
  const blend=finite(eq)&&finite(mf)?(eq+mf)/2:null;
- $('summary').innerHTML=stat('Portfolio value',money(t.market_value),'Current market value')+stat('Total P&L',money(t.pnl,true),'Reported cumulative P&L',tone(t.pnl))+stat('Return on cost',pct(t.return_pct,true),'Not annualized',tone(t.return_pct))+stat('Equity XIRR',pct(eq,true),'Money-weighted annualized',tone(eq))+stat('MF XIRR',pct(mf,true),'Money-weighted annualized',tone(mf))+stat('Blended estimate',pct(blend,true),'Simple mean · not portfolio XIRR',tone(blend));
+ // "since" is the single most useful missing fact: without it the reader cannot
+ // tell whether +21.4% is six years of compounding or six weeks.
+ const per=(p.period&&p.period.years)?number(p.period.years)+' years':null;
+ const since=(p.period&&p.period.since)?' since '+monthLabel(p.period.since):'';
+ $('summary').innerHTML=stat('Portfolio value',money(t.market_value),'Current market value')
+  +stat('Total P&L',money(t.pnl,true),per?('Over '+per+' of investing'+since):'Cumulative unrealised gain',tone(t.pnl))
+  +stat('Return on cost',pct(t.return_pct,true),'Simple, ignores contribution timing',tone(t.return_pct))
+  +stat('Annualised (XIRR)',pct(ready&&finite(eq)&&finite(mf)?(eq+mf)/2:null,true),'Equity + MF average · the comparable number','gain')
+  +stat('Names in the red',list(s.contribution&&s.contribution.top_losers).length?number(s.contribution.n_losers)+' of '+number(s.contribution.n_holdings):'—','Positions below cost today','loss');
  const sleeves=Object.values(s.sleeves||{}).filter(x=>x&&typeof x==='object').sort((a,b)=>(b.weight||0)-(a.weight||0));
  lastSleeveIds=sleeves.map(x=>x.name);
  if(!$('editor-body').dataset.init){$('editor-body').dataset.init='1';initEditor(lastSleeveIds);}
  let offset=0;
  const weights=sleeves.map(x=>finite(x.weight)&&x.weight>=0?x.weight:0),sum=weights.reduce((a,b)=>a+b,0),domain=Math.max(100,sum,...weights);
  const segments=sleeves.map((x,i)=>{const width=weights[i]/domain*100;const r=`<rect x="${offset}" y="0" width="${width}" height="20" class="${i%2?'context-mark':'mark'}" stroke="var(--surface)" stroke-width=".5"/>`;offset+=width;return r;}).join('');
- $('allocation').innerHTML=sleeves.length?`<svg class="allocation-total" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true">${segments}</svg><p class="caption">${esc(pct(sum))} reported allocation</p>`+sleeves.map((x,i)=>`<div class="allocation-row"><div class="row-top"><strong>${esc(name(x.name))}</strong><span class="number">${esc(pct(x.weight))}</span></div>${svgBar(weights[i],domain,false,i%2?'context-mark':'mark')}<div class="allocation-detail"><span>${esc(money(x.market))}</span><span class="${tone(x.return_pct)}">${esc(pct(x.return_pct,true))} return</span></div><p class="caption ${tone(x.pnl)}">${esc(money(x.pnl,true))} P&amp;L</p></div>`).join(''):note('No sleeve allocation supplied.');
- const c=s.contribution||{},rows=[...list(c.top_gainers),...list(c.top_losers)].sort((a,b)=>(finite(b.pnl)?b.pnl:-Infinity)-(finite(a.pnl)?a.pnl:-Infinity));
- const extent=Math.max(...rows.map(x=>finite(x.pnl)?Math.abs(x.pnl):0),0);
- $('contributions').innerHTML=rows.length?rows.map(x=>`<div class="contribution-row"><div class="holding">${esc(x.name||'Unnamed holding')}<small>${esc(name(x.sleeve))} · ${esc(pct(x.return_pct,true))} return</small></div>${svgBar(x.pnl,extent,true,x.pnl<0?'loss-mark':'gain-mark')}<span class="number ${tone(x.pnl)}">${esc(money(x.pnl,true))}</span></div>`).join('')+`<div class="chart-axis"><span></span><div class="ticks"><span>${esc(money(-extent))}</span><span>${esc(money(0))}</span><span>${esc(money(extent))}</span></div></div>`:note('No holding contributions supplied.');
- $('contributions').innerHTML+=`<div class="contribution-summary"><span>${esc(number(c.n_holdings))} reported holdings</span><span>${esc(pct(c.win_rate_pct))} win rate</span><span class="${tone(c.winners_pnl)}">Winners ${esc(money(c.winners_pnl,true))}</span><span class="${tone(c.losers_pnl)}">Losers ${esc(money(c.losers_pnl,true))}</span></div>`+note('Selected gainers and losers, not the full portfolio. All bars share one scale; very small contributions may appear as slivers. Reported aggregate totals can cover a different universe than these selected rows.');
+ $('allocation').innerHTML=sleeves.length?`<svg class="allocation-total" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true">${segments}</svg><p class="caption">${esc(pct(sum))} reported allocation</p>`+sleeves.map((x,i)=>`<div class="allocation-row"><div class="row-top"><strong>${esc(name(x.name))}</strong><span class="number">${esc(pct(x.weight))}</span></div>${svgBar(weights[i],domain,false,i%2?'context-mark':'mark')}<div class="allocation-detail"><span>${esc(moneyUnit(x.market))}</span><span class="${tone(x.return_pct)}">${esc(pct(x.return_pct,true))} return</span></div><p class="caption ${tone(x.pnl)}">${esc(moneyUnit(x.pnl,true))} P&amp;L</p></div>`).join(''):note('No sleeve allocation supplied.');
+ const c=s.contribution||{};
+ const gainers=list(c.top_gainers).filter(x=>finite(x.pnl)&&x.pnl>0)
+   .sort((a,b)=>b.pnl-a.pnl);
+ const losers=list(c.top_losers).filter(x=>finite(x.pnl)&&x.pnl<0)
+   .sort((a,b)=>a.pnl-b.pnl);
+ // One shared scale across both lists, so a small gain and a small loss are
+ // visually comparable. Previously the two lists shared a chart but had no
+ // visual split, which hid the "what is not working" half the page promises.
+ /* Losses here are ~0.4% of gains, so a single shared scale renders every loser
+    as an unreadable sliver. Each group therefore gets its own scale, stated in
+    the heading, and the summary carries the absolute comparison. */
+ const gainExtent=Math.max(...gainers.map(x=>Math.abs(x.pnl)),0);
+ const lossExtent=Math.max(...losers.map(x=>Math.abs(x.pnl)),0);
+ const row=(x,ext)=>`<div class="contribution-row"><div class="holding">${esc(x.name||'Unnamed holding')}<small>${esc(name(x.sleeve))} · ${esc(pct(x.return_pct,true))} return</small></div>${svgBar(x.pnl,ext,true,x.pnl<0?'loss-mark':'gain-mark')}<span class="number ${tone(x.pnl)}">${esc(moneyUnit(x.pnl,true))}</span></div>`;
+ const axis=ext=>`<div class="chart-axis"><span></span><div class="ticks"><span>${esc(moneyUnit(-ext))}</span><span>${esc(moneyUnit(0))}</span><span>${esc(moneyUnit(ext))}</span></div></div>`;
+ const cmp=(finite(c.winners_pnl)&&c.losers_pnl)?Math.abs(c.losers_pnl/c.winners_pnl*100):null;
+ $('contributions').innerHTML=(gainers.length||losers.length)
+  ? (gainers.length?`<h3 class="split-grp">Working <span class="caption">${esc(number(gainers.length))} shown of ${esc(number(c.n_winners))} above cost · scale to ${esc(moneyUnit(gainExtent))}</span></h3>`+gainers.map(x=>row(x,gainExtent)).join('')+axis(gainExtent):'')
+  + (losers.length?`<h3 class="split-grp is-loss">Not working <span class="caption">${esc(number(losers.length))} shown of ${esc(number(c.n_losers))} below cost${lossExtent&&gainExtent&&lossExtent<gainExtent?' · own larger scale':''}</span></h3>`+losers.map(x=>row(x,lossExtent)).join(''):'')
+  + (finite(cmp)?note('Losses total '+moneyUnit(Math.abs(c.losers_pnl))+', about '+number(cmp)+'% of the '+moneyUnit(c.winners_pnl)+' gained, so the two groups are drawn to different scales. Read the rupee figures, not the relative bar lengths.'):'')
+  : note('No holding contributions supplied.');
+ $('contributions').innerHTML+=`<div class="contribution-summary"><span>${esc(number(c.n_holdings))} positions with a cost basis</span><span>${esc(number(c.n_winners))} above cost · ${esc(number(c.n_losers))} below cost</span><span class="${tone(c.winners_pnl)}">Gains ${esc(moneyUnit(c.winners_pnl,true))}</span><span class="${tone(c.losers_pnl)}">Losses ${esc(moneyUnit(c.losers_pnl,true))}</span></div>`+note('Selected gainers and losers, not the full portfolio: the largest movers only. Each group is drawn to its own scale, stated in its heading, so compare the rupee figures across groups and the bar lengths only within one. Reported totals cover every position, not just the rows shown.');
  const con=s.concentration||{};
  $('concentration').innerHTML=`<div class="key-metric"><span class="number big">${esc(number(con.effective_n_direct_equity))}</span><small>Effective N · direct equity · 1 / Σw²</small></div>`+note('Equivalent equally weighted positions. Lower effective N means greater concentration; fund look-through overlap is not supplied.')+(list(con.above_5pct).length?`<table><caption class="caption">Source-flagged concentrated positions · reported weights</caption><tbody>${list(con.above_5pct).map(x=>`<tr><th scope="row">${esc(x.name)}</th><td>${esc(pct(x.weight_pct))}<br><span class="${tone(x.pnl)}">${esc(money(x.pnl,true))}</span></td></tr>`).join('')}</tbody></table>`:note('No concentrated positions supplied.'));
  const st=s.stress;
  $('stress').innerHTML=st?note(st.scenario||'Scenario description unavailable')+`<div class="key-metric"><span class="number big ${tone(st.est_portfolio_pnl_after)}">${esc(money(st.est_portfolio_pnl_after,true))}</span><small>Estimated portfolio P&amp;L after scenario</small></div>`+note(finite(st.est_portfolio_pnl_after)&&finite(t.pnl)?money(st.est_portfolio_pnl_after-t.pnl,true)+' change from reported P&L. Scenario estimate, not a forecast.':'Scenario estimate, not a forecast.'):note('No stress scenario supplied.');
  const b=ready?p.behavior:null;
- $('behavior').innerHTML=b?`<table><tbody>${[['Average holding period',finite(b.avg_holding_years)?number(b.avg_holding_years)+' years':'Not available'],['Held symbols with sell history',number(b.held_with_sell_history)],['Sells within 90 days of first buy',number(b.sells_within_90d_of_first_buy)],['Gross bought · supplied ledger',money(b.gross_bought)],['Gross sold · supplied ledger',money(b.gross_sold)]].map(([k,v])=>`<tr><th scope="row">${esc(k)}</th><td class="number">${esc(v)}</td></tr>`).join('')}</tbody></table>`+note('Early sells are a churn diagnostic, not a policy violation. Ledger coverage follows the supplied source notes.'):note('Not available. A dated trade ledger is needed to assess holding periods and churn.');
+ $('behavior').innerHTML=b?`<table><tbody>${[
+   ['Average holding period',finite(b.avg_holding_years)?number(b.avg_holding_years)+' years':'Not available'],
+   ['Held positions that were also sold',number(b.held_with_sell_history)+(finite(b.n_held_symbols)?' of '+number(b.n_held_symbols):'')],
+   ['Sold within 90 days of buying',number(b.sells_within_90d_of_first_buy)+(finite(b.symbols_ever_bought_and_sold)?' of '+number(b.symbols_ever_bought_and_sold)+' ever traded':'')],
+   ['Quick-sell rate',finite(b.quick_sell_rate_pct)?pct(b.quick_sell_rate_pct):'Not available'],
+   ['Gross bought',moneyUnit(b.gross_bought)],
+   ['Gross sold',moneyUnit(b.gross_sold)],
+   ['Turnover (sold ÷ bought)',finite(b.turnover_ratio)?number(b.turnover_ratio)+'×':'Not available'],
+ ].map(([k,v])=>`<tr><th scope="row">${esc(k)}</th><td class="number">${esc(v)}</td></tr>`).join('')}</tbody></table>`+note('Early sells are a churn diagnostic, not a policy violation. Ledger coverage follows the supplied source notes.'):note('Not available. A dated trade ledger is needed to assess holding periods and churn.');
  const disc=d.discipline||{},g=d.goals||{};
  $('discipline').innerHTML=`<span class="badge">${esc(disc.status==='graded'&&disc.grade?'Reported grade: '+disc.grade:'Needs policy')}</span>`+note(disc.note||'Define contribution, holding, rebalancing and risk rules before assigning a grade.')+(disc.components?`<dl>${Object.values(disc.components).filter(Boolean).map(x=>`<div class="quality-row"><dt>${esc(x.label)}</dt><dd>${esc(number(x.score))} / 10 · ${esc(pct(finite(x.weight)?x.weight*100:null))} weight</dd></div>`).join('')}</dl>`:'');
  if(g.status==='ready'&&Array.isArray(g.goals)){$('goals').innerHTML='<span class="badge">Baselines set</span>'+g.goals.map(x=>`<div class="goal-row"><div class="row-top"><strong>${esc(x.name||'Unnamed goal')}</strong><span class="number ${finite(x.funded_pct)?(x.funded_pct>=100?'gain':''):''}">${esc(finite(x.funded_pct)?pct(x.funded_pct):'—')}</span></div><div class="goal-bar"><span style="width:${Math.min(100,Math.max(0,x.funded_pct||0))}%"></span></div><p class="caption">${esc(money(x.current_corpus_inr))} of ${esc(money(x.target_inr))} target${x.target_date?' · by '+esc(x.target_date):''}${x.sleeves&&x.sleeves.length?' · '+esc(x.sleeves.map(name).join(', ')):''}</p></div>`).join('')+note(g.note||'');}
  else $('goals').innerHTML='<span class="badge">Needs baseline</span>'+note(g.note||'Add a dated target corpus, horizon and assigned assets for each goal.')+note('Funding progress cannot be verified without a required-corpus baseline.');
  const quality=d.data_quality||{},labels={xirr:'XIRR',behavior_ledger:'Behavioral ledger',benchmark_relative:'Benchmark-relative return'};
  $('quality').innerHTML=Object.entries(labels).map(([k,label])=>`<div class="quality-row"><span>${label}</span><span>${esc(String(quality[k]||'Not supplied').replace(/-/g,' '))}</span></div>`).join('');
- $('methodology').innerHTML=note('Blended estimate is the unweighted mean of the two supplied sleeve XIRRs, not a combined portfolio XIRR. A true portfolio XIRR requires all dated cash flows.')+ (p.note?note(p.note):'')+(Array.isArray(p.notes)&&p.notes.length?`<details><summary>Performance source notes</summary>${p.notes.map(note).join('')}</details>`:'');
+ const bench=p.benchmark||{};
+ $('methodology').innerHTML=
+   (p.period?note('Period covered: '+monthLabel(p.period.since)+' to '+monthLabel(p.period.until)+(finite(p.period.years)?' ('+number(p.period.years)+' years)':'')+'. All return figures below refer to this window.'):'')
+  +(bench.note?note('Benchmark: '+bench.note):'')
+  +note('Annualised figure above is the mean of the equity and fund XIRRs. That is an approximation, not a combined portfolio XIRR — a true portfolio XIRR needs every dated cash flow, including contributions into the US sleeve.')
+  + (p.note?note(p.note):'')+(Array.isArray(p.notes)&&p.notes.length?`<details><summary>Performance source notes</summary>${p.notes.map(note).join('')}</details>`:'');
  renderUsSleeve(d.us_equity);
+ renderDiagnosis(d.findings, s);
  const date=v=>{const dt=new Date(v);return v&&!Number.isNaN(dt.getTime())?dt.toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}):'Not supplied';};
  $('meta').textContent='As of '+date(d.meta?.as_of||s.as_of)+' · Generated '+date(d.meta?.generated_at);
  $('status').textContent=source==='sample'?'Sample data · anonymous demonstration. Personal data could not be loaded.':source==='file'?'Local file · rendered only in this browser.':'Local portfolio data · snapshot loaded';
  $('dashboard').hidden=false;
  document.documentElement.dataset.ready='true';
  document.documentElement.dataset.source=source;
+}
+function renderDiagnosis(f, s){
+ const items=(f&&Array.isArray(f.items))?f.items.filter(x=>x&&typeof x==='object'):[];
+ if(!items.length){$('diagnosis-body').innerHTML=note('No diagnosis available for this snapshot.');return;}
+ const watch=items.filter(x=>x.severity==='watch'), info=items.filter(x=>x.severity!=='watch');
+ const card=x=>`<li class="finding ${x.severity==='watch'?'is-watch':''}"><div class="finding-head"><span class="badge">${x.severity==='watch'?'Action':'Note'}</span><strong>${esc(x.title||'')}</strong></div><p>${esc(x.detail||'')}</p></li>`;
+ $('diagnosis-body').innerHTML =
+   (watch.length?`<h3 class="finding-grp">Worth acting on</h3><ul class="finding-list">${watch.map(card).join('')}</ul>`:'')
+  +(info.length?`<h3 class="finding-grp">Context</h3><ul class="finding-list">${info.map(card).join('')}</ul>`:'')
+  +note('Counts and figures come from the snapshot below. Nothing here is advice or a forecast.');
 }
 const usd = (v, signed=false) => {
  if(!finite(v)) return 'Not available';

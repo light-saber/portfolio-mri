@@ -157,6 +157,208 @@ def cv(values) -> float | None:
     return math.sqrt(var) / mean
 
 
+def build_findings(summary, performance, us):
+    """Plain-language diagnosis. The dashboard's job is to answer "so what",
+    not just to display numbers. Each finding carries a severity so the page
+    can lead with the one that matters.
+    """
+    t = summary["total"]
+    sleeves = summary.get("sleeves") or {}
+    contrib = summary.get("contribution") or {}
+    conc = summary.get("concentration") or {}
+    stress = summary.get("stress") or {}
+    perf = performance if performance.get("status") == "ready" else {}
+    beh = perf.get("behavior") or {}
+    period = perf.get("period") or {}
+    findings = []
+
+    def sleeve_label(raw):
+        out = raw.replace("-", " ")
+        if out.endswith(" mf"):
+            out = out[:-3].upper() + " MF"
+        return out[:1].upper() + out[1:]
+
+    def money(v):
+        a = abs(v)
+        return f"₹{a/1e5:,.2f} L" if a >= 1e5 else f"₹{a:,.0f}"
+
+    ABBR = {
+        "SGBJUN31I-GB": "SGB Jun-2031 (Sovereign Gold Bond)",
+        "SGBFEB32IV": "SGB Feb-2032 (Sovereign Gold Bond)",
+    }
+
+    def friendly_name(n):
+        return ABBR.get(n, n)
+
+    # 1. headline
+    since = period.get("since")
+    findings.append({
+        "id": "headline",
+        "severity": "info",
+        "title": f"You are up {money(t['pnl'])} on {money(t['invested'])} invested"
+                  + (f", over {period.get('years')} years" if period.get("years") else ""),
+        "detail": (
+            f"That is {t['return_pct']}% on cost. Because your contributions arrived over "
+            f"{period.get('years')} years rather than all at once, the figure that actually "
+            f"compares against a benchmark is the annualised one, roughly "
+            f"{perf.get('equity_xirr_pct')}% a year. The gap between the two is expected: the "
+            "higher number ignores when each payment landed."
+        ),
+        "metric": t["return_pct"],
+        "metric_kind": "return_pct",
+    })
+
+    # 2. what is carrying the result
+    gainers = contrib.get("top_gainers") or []
+    if gainers:
+        top3 = gainers[:3]
+        share = sum(g["pnl"] for g in top3) / t["pnl"] * 100 if t["pnl"] else 0
+        findings.append({
+            "id": "drivers",
+            "severity": "info",
+            "title": (f"The top {len(gainers)} holdings account for "
+                        f"{share:.0f}% of your total gain"),
+            "detail": (
+                "Top contributors, in rupees: "
+                + ", ".join(
+                    f"{friendly_name(g['name'])} {money(g['pnl'])}" for g in top3)
+                + "."
+            ),
+            "metric": round(share, 0),
+            "metric_kind": "share_pct",
+        })
+
+    # 3. concentration risk, the actual MRI finding
+    eff_n = conc.get("effective_n_direct_equity")
+    biggest = sorted(
+        (s for s in sleeves.values() if s["market"] > 0),
+        key=lambda s: -s["weight"],
+    )
+    if biggest and biggest[0]["weight"] >= 35:
+        findings.append({
+            "id": "concentration",
+            "severity": "watch",
+            "title": f"{sleeve_label(biggest[0]['name'])} is {biggest[0]['weight']}% of the portfolio",
+            "detail": (
+                f"One bucket is carrying {biggest[0]['weight']}% of your portfolio. "
+                + (f"Across your direct stocks the average holding behaves like roughly "
+                   f"{round(eff_n)} equally weighted positions, so you hold fewer independent "
+                   "bets than the count of tickers suggests. " if finite_or_none(eff_n) else "")
+                + "Worth a rebalancing decision you make on purpose, rather than letting it happen by drift."
+            ),
+            "metric": biggest[0]["weight"],
+            "metric_kind": "weight_pct",
+        })
+    elif finite_or_none(eff_n) and eff_n <= 8:
+        findings.append({
+            "id": "concentration",
+            "severity": "watch",
+            "title": f"Direct equity behaves like {eff_n} equal positions",
+            "detail": "Lower is more concentrated. A handful of names is driving the sleeve.",
+            "metric": eff_n,
+            "metric_kind": "effective_n",
+        })
+
+    # 4. sleeve with the weakest return
+    with_pnl = [s for s in sleeves.values() if s["invested"] > 0]
+    if with_pnl:
+        worst = min(with_pnl, key=lambda s: s["return_pct"])
+        if worst["return_pct"] < 5:
+            findings.append({
+                "id": "weak-sleeve",
+                "severity": "watch",
+                "title": f"{sleeve_label(worst['name'])} has returned {worst['return_pct']}%",
+                "detail": (
+                    f"{money(worst['invested'])} went in, {money(worst['market'])} is there now. "
+                    + ("This is the bucket to review: either the thesis needs revisiting or the "
+                       "money is better deployed elsewhere."
+                       if worst["pnl"] < 0 else
+                       "Positive, but lagging every other bucket by a wide margin.")
+                ),
+                "metric": worst["return_pct"],
+                "metric_kind": "return_pct",
+            })
+
+    # 4b. loss asymmetry: often the real message is "your losers are not the problem"
+    losers_pnl = contrib.get("losers_pnl")
+    winners_pnl = contrib.get("winners_pnl")
+    if finite_or_none(losers_pnl) and finite_or_none(winners_pnl) and winners_pnl > 0:
+        ratio = abs(losers_pnl) / winners_pnl * 100
+        if ratio <= 5:
+            findings.append({
+                "id": "loss-asymmetry",
+                "severity": "info",
+                "title": (f"Your losing positions cost {money(abs(losers_pnl))} in total, "
+                          f"about {ratio:.0f}% of what you gained"),
+                "detail": (
+                    f"{contrib.get('n_losers')} positions are below cost, but together they are a "
+                    "rounding error next to the gains. The problem to solve here is not cutting "
+                    "losers, it is concentration and cash drag."
+                ),
+                "metric": round(ratio, 1),
+                "metric_kind": "rate_pct",
+            })
+
+    # 5. stress
+    after = stress.get("est_portfolio_pnl_after")
+    if finite_or_none(after) and finite_or_none(t["pnl"]):
+        findings.append({
+            "id": "stress",
+            "severity": "info",
+            "title": f"A 25% equity fall would take profit to {money(after)}",
+            "detail": (
+                f"That is {money(abs(after - t['pnl']))} below where you are now. Gold and cash "
+                "are held flat in this scenario, so the defensive sleeves do less work here "
+                "than they would in a real fall."
+            ),
+            "metric": round(after, 0),
+            "metric_kind": "inr",
+        })
+
+    # 6. behaviour
+    rate = beh.get("quick_sell_rate_pct")
+    if finite_or_none(rate) and rate >= 40:
+        findings.append({
+            "id": "churn",
+            "severity": "watch",
+            "title": f"{rate}% of sold positions were closed within 90 days of buying",
+            "detail": (
+                f"{beh.get('sells_within_90d_of_first_buy')} of "
+                f"{beh.get('symbols_ever_bought_and_sold')} symbols ever bought and sold. "
+                "Short holds are the biggest drag on compounding after costs and taxes."
+            ),
+            "metric": rate,
+            "metric_kind": "rate_pct",
+        })
+
+    # 7. uninvested cash, if the US sleeve is sitting on it
+    if us and us.get("status") == "ready" and (us.get("buying_power_usd") or 0) > 500:
+        findings.append({
+            "id": "cash-drag",
+            "severity": "watch",
+            "title": f"${us['buying_power_usd']:,.0f} of your US sleeve is sitting in cash",
+            "detail": (
+                f"Roughly ₹{(us['buying_power_usd'] * (us.get('usd_inr') or 0)) / 1e5:,.2f} L "
+                "is sitting in cash rather than working. Cash is not a portfolio bucket, it is "
+                "a decision waiting to be made."
+            ),
+            "metric": round(us["buying_power_usd"], 0),
+            "metric_kind": "usd",
+        })
+
+    order = {"watch": 0, "info": 1}
+    findings.sort(key=lambda f: order.get(f["severity"], 2))
+    return {
+        "lead": findings[0] if findings else None,
+        "watch_count": sum(1 for f in findings if f["severity"] == "watch"),
+        "items": findings,
+    }
+
+
+def finite_or_none(v):
+    return isinstance(v, (int, float)) and not isinstance(v, bool)
+
+
 def build_summary(equity, mf, as_of, us=None):
     eq_rows = [
         {
@@ -242,33 +444,35 @@ def build_summary(equity, mf, as_of, us=None):
     # dilute the win rate or appear as zero-P&L slivers.
     contrib_rows = [r for r in all_rows if r["invested_value"] or r["unrealized_pnl"]]
     sorted_rows = sorted(contrib_rows, key=lambda r: -r["unrealized_pnl"])
+
+    def row_out(r):
+        return {
+            "name": r["symbol"] if "symbol" in r else r["fund"],
+            "sleeve": r["sleeve"],
+            "pnl": round(r["unrealized_pnl"], 0),
+            "return_pct": r["return_pct"],
+            "invested_value": round(r["invested_value"], 0),
+            "market_value": round(r["market_value"], 0),
+            "weight_pct": round(r["market_value"] / total_mv * 100, 1) if total_mv else 0.0,
+        }
+
     positive = [(r, r["unrealized_pnl"]) for r in sorted_rows if r["unrealized_pnl"] > 0]
-    negative = [(r, r["unrealized_pnl"]) for r in sorted_rows if r["unrealized_pnl"] < 0]
+    # sort losers worst-first: sorted_rows is descending, so the tail must be reversed
+    # or the "top losers" list shows the six *smallest* losses instead of the largest.
+    negative = sorted(
+        [(r, r["unrealized_pnl"]) for r in sorted_rows if r["unrealized_pnl"] < 0],
+        key=lambda rv: rv[1],
+    )
     contribution = {
-        "top_gainers": [
-            {
-                "name": r["symbol"] if "symbol" in r else r["fund"],
-                "sleeve": r["sleeve"],
-                "pnl": round(v, 0),
-                "return_pct": r["return_pct"],
-                "weight_pct": round(r["market_value"] / total_mv * 100, 1) if total_mv else 0.0,
-            }
-            for r, v in positive[:8]
-        ],
-        "top_losers": [
-            {
-                "name": r["symbol"] if "symbol" in r else r["fund"],
-                "sleeve": r["sleeve"],
-                "pnl": round(v, 0),
-                "return_pct": r["return_pct"],
-                "weight_pct": round(r["market_value"] / total_mv * 100, 1) if total_mv else 0.0,
-            }
-            for r, v in negative[:6]
-        ],
+        "top_gainers": [row_out(r) for r, _ in positive[:8]],
+        "top_losers": [row_out(r) for r, _ in negative[:6]],
         "winners_pnl": round(sum(v for _, v in positive), 0),
         "losers_pnl": round(sum(v for _, v in negative), 0),
         "win_rate_pct": round(len(positive) / len(contrib_rows) * 100, 1) if contrib_rows else 0,
         "n_holdings": len(contrib_rows),
+        "n_winners": len(positive),
+        "n_losers": len(negative),
+        "n_flat": len(contrib_rows) - len(positive) - len(negative),
     }
 
     # concentration on direct equity sleeve (MF look-through is partial: later)
@@ -465,28 +669,55 @@ def build_performance(equity, mf, as_of):
             s = norm_sym(t["symbol"])
             sells.setdefault(s, []).append(_date.fromisoformat(t["trade_date"]))
     quick_sells = 0
+    closed_loops = 0
     for s, sd in sells.items():
         if s in buys and buys[s]:
-            if (min(sd) - min(buys[s])).days <= 90:
+            fb, fs = min(buys[s]), min(sd)
+            if (fs - fb).days <= 90:
                 quick_sells += 1
+            if fb <= fs:
+                closed_loops += 1
     round_trips = sum(1 for s, sd in sells.items() if s in held and sd)
+    # denominators, so the counts can be read as rates rather than as alarms
+    symbols_with_both = sum(1 for s in sells if s in buys and buys[s])
+    all_dates = [t["trade_date"] for t in eq_trades] + [t["trade_date"] for t in mf_trades]
 
     gross_buy = sum(-a for _, a in realized if a < 0)
     gross_sell = sum(a for _, a in realized if a > 0)
 
     return {
         "status": "ready",
+        "period": {
+            "since": min(all_dates) if all_dates else None,
+            "until": max(all_dates) if all_dates else None,
+            "years": round((today - _date.fromisoformat(min(all_dates))).days / 365.0, 1)
+            if all_dates else None,
+        },
         "equity_xirr_pct": round(eq_xirr * 100, 2) if eq_xirr else None,
         "mf_xirr_pct": round(mf_xirr * 100, 2) if mf_xirr else None,
+        "benchmark": {
+            "status": "needs-benchmark",
+            "note": ("No benchmark series is wired up, so the XIRRs above cannot be "
+                     "called above or below market. Add dated benchmark closes to "
+                     "compare on the same window."),
+        },
         "behavior": {
             "avg_holding_years": round(sum(ages) / len(ages), 2) if ages else None,
             "held_with_sell_history": round_trips,
+            "n_held_symbols": len(held),
             "sells_within_90d_of_first_buy": quick_sells,
+            "symbols_ever_bought_and_sold": symbols_with_both,
+            "quick_sell_rate_pct": round(quick_sells / symbols_with_both * 100, 1)
+            if symbols_with_both else None,
             "gross_bought": round(gross_buy, 0),
             "gross_sold": round(gross_sell, 0),
+            "turnover_ratio": round(gross_sell / gross_buy, 2) if gross_buy else None,
         },
         "notes": [
             "SGBJUN31I (INR 3.85L) excluded from XIRR: its buys predate the 2020-2026 tradebook window.",
+            "Return on cost (21.4%) and XIRR (~13%) measure different things: the first ignores "
+            "the timing and size of each contribution, the second weights them. XIRR is the "
+            "comparable number.",
         ] + ([f"No equity trade rows for: {', '.join(no_ledger)}"] if no_ledger else []),
     }
 
@@ -547,6 +778,7 @@ def main():
             "version": "v1",
         },
         "summary": summary,
+        "findings": build_findings(summary, performance, us),
         "us_equity": us,
         "performance": performance,
         "discipline": discipline,

@@ -175,10 +175,13 @@
      "weight_pct": 0.7
     }
    ],
-   "winners_pnl": 467000,
-   "losers_pnl": -15200,
+   "winners_pnl": 1980000,
+   "losers_pnl": 58000,
    "win_rate_pct": 69.6,
-   "n_holdings": 46
+   "n_holdings": 38,
+   "n_winners": 31,
+   "n_losers": 7,
+   "n_flat": 0
   },
   "concentration": {
    "above_5pct": [
@@ -245,7 +248,7 @@
  "data_quality": {
   "xirr": "needs-cas",
   "behavior_ledger": "needs-trade-history",
-  "benchmark_relative": "needs-trade-dates",
+  "benchmark_relative": "needs-benchmark",
   "us_sleeve": "ready"
  },
  "us_equity": {
@@ -299,5 +302,80 @@
    }
   ],
   "note": "Anonymous sample US sleeve for the public demo. Per-symbol cost basis is not tracked, so per-holding return is not shown."
+ },
+ "performance": {
+  "status": "ready",
+  "period": {
+   "since": "2021-03-01",
+   "until": "2026-01-01",
+   "years": 4.8
+  },
+  "equity_xirr_pct": 12.4,
+  "mf_xirr_pct": 10.9,
+  "benchmark": {
+   "status": "needs-benchmark",
+   "note": "Sample data carries no benchmark series, so the annualised figures cannot be called above or below market."
+  },
+  "behavior": {
+   "avg_holding_years": 3.1,
+   "held_with_sell_history": 21,
+   "n_held_symbols": 38,
+   "sells_within_90d_of_first_buy": 44,
+   "symbols_ever_bought_and_sold": 96,
+   "quick_sell_rate_pct": 45.8,
+   "gross_bought": 9200000,
+   "gross_sold": 8100000,
+   "turnover_ratio": 0.88
+  },
+  "notes": [
+   "Sample data. Figures are illustrative and do not describe a real portfolio.",
+   "Return on cost and XIRR measure different things: the first ignores the timing and size of each contribution, the second weights them."
+  ]
+ },
+ "findings": {
+  "lead": null,
+  "watch_count": 2,
+  "items": [
+   {
+    "id": "concentration",
+    "severity": "watch",
+    "title": "Active funds are 42% of the sample portfolio",
+    "detail": "One bucket is carrying 42% of your portfolio. Across the direct stocks the average holding behaves like roughly 9 equally weighted positions, so you hold fewer independent bets than the count of tickers suggests.",
+    "metric": 42.0,
+    "metric_kind": "weight_pct"
+   },
+   {
+    "id": "churn",
+    "severity": "watch",
+    "title": "46% of sold positions were closed within 90 days of buying",
+    "detail": "44 of 96 symbols ever bought and sold. Short holds are the biggest drag on compounding after costs and taxes.",
+    "metric": 45.8,
+    "metric_kind": "rate_pct"
+   },
+   {
+    "id": "headline",
+    "severity": "info",
+    "title": "You are up on the sample corpus over 4.8 years",
+    "detail": "Return on cost ignores when each contribution arrived, so the annualised figure is the one to compare against a benchmark.",
+    "metric": 18.2,
+    "metric_kind": "return_pct"
+   },
+   {
+    "id": "stress",
+    "severity": "info",
+    "title": "A 25% equity fall would cut the sample profit sharply",
+    "detail": "Gold and cash are held flat in this scenario, so the defensive sleeves do less work here than they would in a real fall.",
+    "metric": -140000,
+    "metric_kind": "inr"
+   },
+   {
+    "id": "loss-asymmetry",
+    "severity": "info",
+    "title": "Your losing positions cost \u20b958,000 in total, about 3% of what you gained",
+    "detail": "Sample data: 7 positions are below cost, but together they are a rounding error next to the gains. The problem to solve is not cutting losers, it is concentration.",
+    "metric": 2.9,
+    "metric_kind": "rate_pct"
+   }
+  ]
  }
 }
