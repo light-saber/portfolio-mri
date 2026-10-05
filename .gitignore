@@ -4,3 +4,6 @@ refined-spec.md
 __pycache__/
 policy.json
 mri_api.py.tmp
+rebuild/
+build_nav.py
+nav.css
