@@ -26,6 +26,9 @@ PORTFOLIO_DIR = pathlib.Path("/root/.hermes/data/portfolio")
 POLICY_PATH = pathlib.Path("/root/portfolio-mri/policy.json")
 OUT_PATH = pathlib.Path("/var/www/portfolio/mr-data.json")
 LOCAL_OUT = pathlib.Path("/root/portfolio-mri/mr-data.json")
+VESTED_POSITIONS = pathlib.Path("/root/.hermes/scripts/vested_tracker/positions.json")
+VESTED_HISTORY = pathlib.Path("/root/.hermes/vested_tracker/history.jsonl")
+USDINR_FALLBACK = 96.28
 
 GOLD_SUFFIXES = ("GOLDBEES", "SILVERBEES", "SGB", "GOLDMONTHLY")
 EQUITY_EXCHANGES = {"NSE", "BSE"}
@@ -36,6 +39,78 @@ def latest_mf_snapshot() -> pathlib.Path:
     if not hits:
         raise FileNotFoundError("no mf-holdings snapshot found")
     return hits[-1]
+
+
+def usd_inr_rate() -> tuple:
+    """Live USD/INR from Yahoo, with the last known rate as fallback."""
+    import urllib.request
+    url = ("https://query1.finance.yahoo.com/v8/finance/chart/INR=X"
+           "?interval=1d&range=5d")
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            meta = json.loads(resp.read().decode())["chart"]["result"][0]["meta"]
+        rate = meta.get("regularMarketPrice")
+        if rate:
+            return round(float(rate), 4), "live (Yahoo INR=X)"
+    except Exception:
+        pass
+    return USDINR_FALLBACK, "fallback (last known)"
+
+
+def load_vested():
+    """US sleeve from the Vested tracker snapshot + latest priced history record."""
+    if not (VESTED_POSITIONS.exists() and VESTED_HISTORY.exists()):
+        return {"status": "needs-snapshot",
+                "note": "Vested tracker snapshot or history missing; US sleeve not included."}
+    pos = json.loads(VESTED_POSITIONS.read_text())
+    records = [json.loads(l) for l in VESTED_HISTORY.read_text().splitlines() if l.strip()]
+    if not records:
+        return {"status": "needs-history",
+                "note": "Vested history is empty; run the daily tracker to price the US sleeve."}
+    rec = records[-1]
+    prices = rec.get("holdings") or {}
+    value_usd = float(rec.get("current_value") or 0.0)
+    invested_usd = float(rec.get("invested") or 0.0)
+    if not value_usd:
+        return {"status": "needs-history",
+                "note": "Latest Vested history record has no current_value."}
+
+    rate, rate_src = usd_inr_rate()
+    holdings = []
+    for sym, info in sorted(prices.items()):
+        v = float(info.get("value") or 0.0)
+        holdings.append({
+            "symbol": sym,
+            "quantity": float(info.get("qty") or 0.0),
+            "value_usd": round(v, 2),
+            "value_inr": round(v * rate, 0),
+            "weight_pct": round(v / value_usd * 100, 1) if value_usd else 0.0,
+        })
+    return {
+        "status": "ready",
+        "broker": "Vested Finance (DriveWealth)",
+        "account": "US Stocks & ETFs",
+        "as_of": rec.get("date"),
+        "position_snapshot": pos.get("updated"),
+        "quantity_snapshot": pos.get("source"),
+        "usd_inr": rate,
+        "usd_inr_source": rate_src,
+        "buying_power_usd": round(float(pos.get("buying_power") or 0.0), 2),
+        "flows_cum_usd": round(float(pos.get("flows_cum") or 0.0), 2),
+        "value_usd": round(value_usd, 2),
+        "invested_usd": round(invested_usd, 2),
+        "pnl_usd": round(value_usd - invested_usd, 2),
+        "pnl_pct": round((value_usd - invested_usd) / invested_usd * 100, 2) if invested_usd else None,
+        "value_inr": round(value_usd * rate, 0),
+        "invested_inr": round(invested_usd * rate, 0),
+        "pnl_inr": round((value_usd - invested_usd) * rate, 0),
+        "holdings": holdings,
+        "note": ("Prices and quantities are as fresh as the Vested tracker: prices refresh "
+                 "daily via Yahoo, quantities only when positions.json is updated after a "
+                 "buy or sell. Per-symbol cost basis is not tracked, so per-holding return "
+                 "is not shown."),
+    }
 
 
 def load_equity():
@@ -82,7 +157,7 @@ def cv(values) -> float | None:
     return math.sqrt(var) / mean
 
 
-def build_summary(equity, mf, as_of):
+def build_summary(equity, mf, as_of, us=None):
     eq_rows = [
         {
             "symbol": e["symbol"],
@@ -115,7 +190,35 @@ def build_summary(equity, mf, as_of):
         for m in mf
     ]
 
-    all_rows = eq_rows + mf_rows
+    us_rows = []
+    if us and us.get("status") == "ready":
+        for h in us["holdings"]:
+            inv = 0.0  # per-symbol cost basis not tracked; sleeve-level only
+            us_rows.append({
+                "symbol": h["symbol"],
+                "sleeve": "us-equity",
+                "currency": "USD",
+                "invested_value": 0.0,
+                "market_value": float(h["value_inr"] or 0.0),
+                "unrealized_pnl": 0.0,
+                "return_pct": None,
+                "value_usd": h["value_usd"],
+                "weight_pct": h["weight_pct"],
+            })
+
+    all_rows = eq_rows + mf_rows + us_rows
+    # sleeve-level US figures carry the real P&L; per-holding rows are value-only
+    if us and us.get("status") == "ready":
+        all_rows.append({
+            "symbol": "US sleeve (Vested)",
+            "sleeve": "us-equity",
+            "currency": "USD",
+            "invested_value": float(us["invested_inr"] or 0.0),
+            "market_value": 0.0,
+            "unrealized_pnl": float(us["pnl_inr"] or 0.0),
+            "return_pct": float(us["pnl_pct"]) if us.get("pnl_pct") is not None else None,
+            "summary_row": True,
+        })
     total_inv = sum(r["invested_value"] for r in all_rows)
     total_mv = sum(r["market_value"] for r in all_rows)
     total_pnl = sum(r["unrealized_pnl"] for r in all_rows)
@@ -134,8 +237,11 @@ def build_summary(equity, mf, as_of):
         s["weight"] = round(s["market"] / total_mv * 100, 1) if total_mv else 0.0
         s["return_pct"] = round(s["pnl"] / s["invested"] * 100, 1) if s["invested"] else 0.0
 
-    # contribution matrix: top +/- by INR pnl
-    sorted_rows = sorted(all_rows, key=lambda r: -r["unrealized_pnl"])
+    # contribution matrix: top +/- by INR pnl.
+    # Value-only rows (US per-holding, zero invested/P&L) are excluded so they do not
+    # dilute the win rate or appear as zero-P&L slivers.
+    contrib_rows = [r for r in all_rows if r["invested_value"] or r["unrealized_pnl"]]
+    sorted_rows = sorted(contrib_rows, key=lambda r: -r["unrealized_pnl"])
     positive = [(r, r["unrealized_pnl"]) for r in sorted_rows if r["unrealized_pnl"] > 0]
     negative = [(r, r["unrealized_pnl"]) for r in sorted_rows if r["unrealized_pnl"] < 0]
     contribution = {
@@ -161,8 +267,8 @@ def build_summary(equity, mf, as_of):
         ],
         "winners_pnl": round(sum(v for _, v in positive), 0),
         "losers_pnl": round(sum(v for _, v in negative), 0),
-        "win_rate_pct": round(len(positive) / len(all_rows) * 100, 1) if all_rows else 0,
-        "n_holdings": len(all_rows),
+        "win_rate_pct": round(len(positive) / len(contrib_rows) * 100, 1) if contrib_rows else 0,
+        "n_holdings": len(contrib_rows),
     }
 
     # concentration on direct equity sleeve (MF look-through is partial: later)
@@ -177,12 +283,13 @@ def build_summary(equity, mf, as_of):
         return shocked_mv - row["invested_value"]
 
     shock_drop = 25.0
-    shock_rows = [r for r in all_rows if r["sleeve"] not in ("gold",)]
-    shock_pnl = sum(shocked(r, shock_drop) for r in shock_rows if r["sleeve"] != "gold")
+    # US per-holding rows carry no cost basis, so shock the sleeve as one unit instead.
+    shock_rows = [r for r in all_rows
+                  if r["sleeve"] != "gold" and not r.get("summary_row") and r["invested_value"] > 0]
+    shock_pnl = sum(shocked(r, shock_drop) for r in shock_rows)
     post_shock_pnl = total_pnl + sum(
         (r["market_value"] * (1 - shock_drop / 100.0)) - r["invested_value"] - r["unrealized_pnl"]
-        for r in all_rows
-        if r["sleeve"] != "gold"
+        for r in shock_rows
     )
 
     return {
@@ -414,6 +521,7 @@ def build_goals(policy, summary):
 def main():
     equity = load_equity()
     mf = load_mf()
+    us = load_vested()
 
     as_of_raw = None
     try:
@@ -422,7 +530,7 @@ def main():
         pass
     as_of = as_of_raw or datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=5, minutes=30))).isoformat()
 
-    summary = build_summary(equity, mf, as_of)
+    summary = build_summary(equity, mf, as_of, us)
     performance = build_performance(equity, mf, as_of)
 
     policy = None
@@ -439,6 +547,7 @@ def main():
             "version": "v1",
         },
         "summary": summary,
+        "us_equity": us,
         "performance": performance,
         "discipline": discipline,
         "goals": build_goals(policy, summary),
@@ -446,6 +555,7 @@ def main():
             "xirr": "ready" if perf_ready else "needs-cas",
             "behavior_ledger": "ready" if perf_ready else "needs-trade-history",
             "benchmark_relative": "needs-trade-dates",
+            "us_sleeve": us.get("status", "needs-snapshot"),
         },
     }
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -456,6 +566,8 @@ def main():
     print(f"total: {data['summary']['total']['market_value']:,.0f} INR, "
           f"pnl {data['summary']['total']['pnl']:+,.0f}")
     print("discipline:", discipline.get("status"))
+    print("us sleeve:", us.get("status"),
+          f"${us.get('value_usd'):,.2f}" if us.get("status") == "ready" else us.get("note"))
     return 0
 
 

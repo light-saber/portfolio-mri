@@ -12,6 +12,10 @@
 .sitenav a{color:var(--muted);text-decoration:none}.sitenav a:hover{color:var(--accent)}.sitenav a[aria-current="page"]{color:var(--accent);font-weight:700}
 @media(max-width:760px){.sitenav{padding:10px 16px;overflow-x:auto}}
 .goal-row{margin-top:14px}.goal-bar{height:8px;background:var(--track);border-radius:4px;margin:6px 0 4px;overflow:hidden}.goal-bar span{display:block;height:100%;background:var(--accent);border-radius:4px}
+.us-summary{grid-template-columns:repeat(4,1fr);margin:0 0 20px}
+.us-summary .stat:nth-child(2){border-left:1px solid var(--line)}
+.weight-cell{display:grid;grid-template-columns:minmax(40px,1fr) 52px;gap:8px;align-items:center}
+@media(max-width:760px){.us-summary{grid-template-columns:repeat(2,1fr)}.us-summary .stat:nth-child(3){border-left:0}.us-summary .stat:nth-child(n+3){border-top:1px solid var(--line)}}
 .editor-field{display:grid;grid-template-columns:220px 1fr;gap:8px 12px;align-items:center;margin-top:8px}.editor-field label{font-size:13px;color:var(--muted)}.editor-field input,.editor-field select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);min-width:0;width:100%}
 .editor-goal{border:1px solid var(--line);border-radius:8px;padding:12px;margin-top:12px}.editor-goal h3{margin-bottom:4px}
 .editor-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.editor-actions button{font:inherit;font-weight:650;padding:8px 16px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:var(--surface);cursor:pointer}.editor-actions button.secondary{background:transparent;color:var(--accent)}
@@ -42,6 +46,7 @@
 <section class="panel stress"><p class="eyebrow">Hypothetical scenario</p><h2>Stress test</h2><div id="stress"></div></section>
 </div><section class="panel"><div class="panel-head"><h2>What drives the result</h2><p class="caption">Contribution matrix · holding P&amp;L in INR</p></div><div class="chart-key"><span>Loss ←</span><span>→ Gain</span></div><div id="contributions"></div></section></div>
 <div class="lower"><section class="panel"><h2>How consistent is the behavior?</h2><div id="behavior"></div></section><section class="panel"><h2>Investment discipline</h2><div id="discipline"></div></section><section class="panel"><h2>Goal funding</h2><div id="goals"></div></section></div>
+<section class="panel section-space"><div class="panel-head"><h2>US sleeve · Vested Finance</h2><p class="caption">US stocks &amp; ETFs held at Vested, converted to INR at the live USD/INR rate</p></div><div id="us-sleeve"></div></section>
 <section class="panel section-space" id="policy-editor"><h2>Policy &amp; Goals editor</h2><div id="editor-body"><p class="caption">Editor available only on the hosted site (needs the save API).</p></div></section>
 <section class="panel section-space"><h2>Data readiness &amp; methodology</h2><div id="quality"></div><div id="methodology"></div></section>
 </div>
@@ -61,7 +66,7 @@ function money(v, signed=false){
 }
 const pct = (v,signed=false) => finite(v)?(signed&&v>0?'+':'')+number(v)+'%':'Not available';
 const tone = v => finite(v)?v>0?'gain':v<0?'loss':'':'';
-const name = v => String(v || 'Unnamed sleeve').replace(/-/g,' ').replace(/\bmf\b/gi,'MF').replace(/\belss\b/gi,'ELSS');
+const name = v => String(v || 'Unnamed sleeve').replace(/-/g,' ').replace(/\bmf\b/gi,'MF').replace(/\belss\b/gi,'ELSS').replace(/^us equity$/i,'US equity');
 const note = v => `<p class="note">${esc(v)}</p>`;
 const list = v => Array.isArray(v)?v.filter(x=>x&&typeof x==='object'):[];
 function stat(label,value,detail='',kind=''){return `<div class="stat"><dt>${esc(label)}</dt><dd class="number ${kind}">${esc(value)}</dd><dd class="caption">${esc(detail)}</dd></div>`;}
@@ -101,12 +106,35 @@ function render(d,source){
  const quality=d.data_quality||{},labels={xirr:'XIRR',behavior_ledger:'Behavioral ledger',benchmark_relative:'Benchmark-relative return'};
  $('quality').innerHTML=Object.entries(labels).map(([k,label])=>`<div class="quality-row"><span>${label}</span><span>${esc(String(quality[k]||'Not supplied').replace(/-/g,' '))}</span></div>`).join('');
  $('methodology').innerHTML=note('Blended estimate is the unweighted mean of the two supplied sleeve XIRRs, not a combined portfolio XIRR. A true portfolio XIRR requires all dated cash flows.')+ (p.note?note(p.note):'')+(Array.isArray(p.notes)&&p.notes.length?`<details><summary>Performance source notes</summary>${p.notes.map(note).join('')}</details>`:'');
+ renderUsSleeve(d.us_equity);
  const date=v=>{const dt=new Date(v);return v&&!Number.isNaN(dt.getTime())?dt.toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}):'Not supplied';};
  $('meta').textContent='As of '+date(d.meta?.as_of||s.as_of)+' · Generated '+date(d.meta?.generated_at);
  $('status').textContent=source==='sample'?'Sample data · anonymous demonstration. Personal data could not be loaded.':source==='file'?'Local file · rendered only in this browser.':'Local portfolio data · snapshot loaded';
  $('dashboard').hidden=false;
  document.documentElement.dataset.ready='true';
  document.documentElement.dataset.source=source;
+}
+const usd = (v, signed=false) => {
+ if(!finite(v)) return 'Not available';
+ return (v<0?'−':signed&&v>0?'+':'')+'$'+Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+};
+function renderUsSleeve(us){
+ if(!us || us.status!=='ready'){ $('us-sleeve').innerHTML='<span class="badge">Not available</span>'+note((us&&us.note)||'US holdings are not present in this snapshot.'); return; }
+ const h=list(us.holdings);
+ const rows=h.map(x=>{
+  const bar=svgBar(finite(x.weight_pct)?x.weight_pct:0,100,false,'mark');
+  return `<tr><th scope="row">${esc(x.symbol)}</th><td class="number">${esc(number(finite(x.quantity)?x.quantity:null))}</td><td class="number">${esc(usd(x.value_usd))}</td><td class="weight-cell">${bar}<span class="number">${esc(pct(x.weight_pct))}</span></td><td class="number">${esc(money(x.value_inr))}</td></tr>`;
+ }).join('');
+ $('us-sleeve').innerHTML=
+   `<dl class="summary us-summary">`
+  +stat('Value (USD)',usd(us.value_usd),'US stocks & ETFs')
+  +stat('Unrealised P&L (USD)',usd(us.pnl_usd,true),pct(us.pnl_pct,true)+' on cost',tone(us.pnl_usd))
+  +stat('Value (INR)',money(us.value_inr),'at USD/INR '+esc(String(us.usd_inr)))
+  +stat('Buying power',usd(us.buying_power_usd),'Uninvested USD cash')
+  +`</dl>`
+  +'<table><caption class="caption">Holdings by weight · prices as of '+esc(us.as_of||'not supplied')+'</caption><thead><tr><th scope="col">Symbol</th><th scope="col">Qty</th><th scope="col">Value</th><th scope="col">Weight</th><th scope="col">Value INR</th></tr></thead><tbody>'+rows+'</tbody></table>'
+  +note('Rate source: '+esc(us.usd_inr_source||'not supplied')+'. Sleeve invested '+esc(usd(us.invested_usd))+', unrealised '+esc(usd(us.pnl_usd,true))+' = '+esc(money(us.pnl_inr,true))+' converted at that rate. Positions last reconciled '+esc(us.position_snapshot||'unknown')+'.')
+  +note(us.note||'');
 }
 async function fetchData(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error('Unavailable');return valid(await r.json());}
 async function load(){

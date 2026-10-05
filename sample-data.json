@@ -245,6 +245,59 @@
  "data_quality": {
   "xirr": "needs-cas",
   "behavior_ledger": "needs-trade-history",
-  "benchmark_relative": "needs-trade-dates"
+  "benchmark_relative": "needs-trade-dates",
+  "us_sleeve": "ready"
+ },
+ "us_equity": {
+  "status": "ready",
+  "broker": "Sample US broker",
+  "account": "US Stocks & ETFs",
+  "as_of": "2026-01-01",
+  "position_snapshot": "2025-12-31",
+  "usd_inr": 96.28,
+  "usd_inr_source": "sample (demo value)",
+  "buying_power_usd": 360.0,
+  "value_usd": 6000.0,
+  "invested_usd": 5279.83,
+  "pnl_usd": 720.17,
+  "pnl_pct": 13.64,
+  "value_inr": 577680,
+  "invested_inr": 508342.0,
+  "pnl_inr": 69338.0,
+  "holdings": [
+   {
+    "symbol": "VTI",
+    "name": "Vanguard Total Stock Market ETF",
+    "quantity": 8.7169,
+    "value_usd": 3596.16,
+    "value_inr": 346238.0,
+    "weight_pct": 45.0
+   },
+   {
+    "symbol": "VXUS",
+    "name": "Vanguard Total International Stock ETF",
+    "quantity": 3.8742,
+    "value_usd": 263.83,
+    "value_inr": 25402.0,
+    "weight_pct": 20.0
+   },
+   {
+    "symbol": "AAPL",
+    "name": "Apple Inc",
+    "quantity": 3.8742,
+    "value_usd": 884.48,
+    "value_inr": 85158.0,
+    "weight_pct": 20.0
+   },
+   {
+    "symbol": "MSFT",
+    "name": "Microsoft Corp",
+    "quantity": 2.9056,
+    "value_usd": 1255.53,
+    "value_inr": 120882.0,
+    "weight_pct": 15.0
+   }
+  ],
+  "note": "Anonymous sample US sleeve for the public demo. Per-symbol cost basis is not tracked, so per-holding return is not shown."
  }
 }
